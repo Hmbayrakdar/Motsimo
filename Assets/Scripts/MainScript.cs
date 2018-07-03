@@ -83,6 +83,11 @@ public class MainScript : MonoBehaviour
     {
         SceneManager.LoadScene("NumbersScene");
     }
+
+    public void goToAnimalsScene()
+    {
+        SceneManager.LoadScene("AnimalsScene");
+    }
     
     
     public void MainMenuTransition()

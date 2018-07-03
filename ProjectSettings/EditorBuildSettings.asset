@@ -14,3 +14,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/NumbersScene.unity
     guid: a9333d772ac653b438e3dbde0c322ee4
+  - enabled: 1
+    path: Assets/Scenes/AnimalsScene.unity
+    guid: efc30906401776b44bf2e71b34e8ef76
