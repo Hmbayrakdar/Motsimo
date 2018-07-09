@@ -49,6 +49,15 @@ public class MainScript : MonoBehaviour
     void Update () {
 		
     }
+
+    IEnumerator Help_Animation(string selected_animation)
+    {
+        yield return new WaitForSeconds(4);
+        
+        Point.SetActive(true);
+        Point.GetComponent<Animation>().Play(selected_animation);
+
+    }
     
     #endregion
     
@@ -274,11 +283,13 @@ public class MainScript : MonoBehaviour
         randomInt = UnityEngine.Random.Range(1, 3);
 
         if (Test[i].tag != "trueAnswer") return;
+        Point.SetActive(false);
         
         switch (randomInt)
         {
             case 1:
                 Test[0].tag = "trueAnswer";
+                StartCoroutine(Help_Animation("AnswerAnimation1"));
                 if (PictureCounter <= 4)
                 {
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
@@ -311,6 +322,7 @@ public class MainScript : MonoBehaviour
                 break;
             case 2:
                 Test[1].tag = "trueAnswer";
+                StartCoroutine(Help_Animation("AnswerAnimation2"));
                 if (PictureCounter <= 4)
                 {
                     Test[1].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];

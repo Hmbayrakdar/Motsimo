@@ -14,7 +14,7 @@ public class SizeDifferenceScript : MonoBehaviour {
     public GameObject QuestionText;
     public GameObject[] ShowPictureObjects;
     public Sprite[] SizeDifferenceSprites;
-    public GameObject restartObject, testStartObject, goBackObject;
+    public GameObject restartObject, testStartObject, goBackObject, Point;
     public GameObject[] TestPictureObjects;
 
     private int PictureCounter;
@@ -42,6 +42,15 @@ public class SizeDifferenceScript : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 		
+    }
+    
+    IEnumerator Help_Animation(string selected_animation)
+    {
+        yield return new WaitForSeconds(4);
+        
+        Point.SetActive(true);
+        Point.GetComponent<Animation>().Play(selected_animation);
+
     }
     
     #endregion
@@ -122,6 +131,7 @@ public class SizeDifferenceScript : MonoBehaviour {
                     TestPictureObjects[1].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
                 
                     DecideQuestion(0,1);
+
                     break;
                 case 1:
                     TestPictureObjects[0].GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
@@ -131,6 +141,7 @@ public class SizeDifferenceScript : MonoBehaviour {
                     TestPictureObjects[1].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
                 
                     DecideQuestion(1,0);
+                    
                     break;
                 default:
                     Debug.Log("Unexpected random integer.");
@@ -141,6 +152,7 @@ public class SizeDifferenceScript : MonoBehaviour {
         }
 
         if (TestPictureObjects[i].tag != "trueAnswer") return;
+        Point.SetActive(false);
         
         if (PictureCounter >= SizeDifferenceSprites.Length)
         {
@@ -194,11 +206,13 @@ public class SizeDifferenceScript : MonoBehaviour {
                 QuestionText.GetComponent<Text>().text = "Hangisi büyük göster.";
                 TestPictureObjects[bigPicture].tag = "trueAnswer";
                 TestPictureObjects[smallPicture].tag = "falseAnswer";
+                StartCoroutine(Help_Animation("AnswerAnimation"+(bigPicture+1).ToString()));
                 break;
             case 1://The question will ask the smaller picture
                 QuestionText.GetComponent<Text>().text = "Hangisi küçük göster.";
                 TestPictureObjects[bigPicture].tag = "falseAnswer";
                 TestPictureObjects[smallPicture].tag = "trueAnswer";
+                StartCoroutine(Help_Animation("AnswerAnimation"+(smallPicture+1).ToString()));
                 break;
             default:
                 Debug.Log("Unexpected random.");

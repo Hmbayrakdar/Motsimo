@@ -11,7 +11,7 @@ public class NumbersSceneScript : MonoBehaviour {
 
 	#region Variables
 
-    public GameObject QuestionText, ShowPictureObject, restartObject, testStartObject, goBackObject;
+    public GameObject QuestionText, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
     public GameObject[] TestPictureObjects;
 
     private int PictureCounter,randomInt;
@@ -34,6 +34,15 @@ public class NumbersSceneScript : MonoBehaviour {
     void Update () {
 		
     }
+	
+	IEnumerator Help_Animation(string selected_animation)
+	{
+		yield return new WaitForSeconds(4);
+        
+		Point.SetActive(true);
+		Point.GetComponent<Animation>().Play(selected_animation);
+
+	}
     
     #endregion
     
@@ -94,6 +103,7 @@ public class NumbersSceneScript : MonoBehaviour {
 		}
 		
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) return;
+		Point.SetActive(false);
 
 		PictureCounter++;
 		QuestionText.GetComponent<Text>().text = "Hangisi " + PictureCounter +" göster.";
@@ -116,6 +126,7 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[1].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[1].tag = "falseAnswer";
+				StartCoroutine(Help_Animation("AnswerAnimation1"));
 				break;
 			case 1:
 				TestPictureObjects[randomInt].tag = "trueAnswer";
@@ -123,6 +134,7 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[0].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[0].tag = "falseAnswer";
+				StartCoroutine(Help_Animation("AnswerAnimation2"));
 				break;
 			default:
 				Debug.Log("Unexpected randomint");
