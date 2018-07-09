@@ -2233,7 +2233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2263,8 +2263,8 @@ Animation:
   serializedVersion: 3
   m_Animation: {fileID: 7400000, guid: 8cf8e0352d4fed040871894e4b83b7cd, type: 2}
   m_Animations:
-  - {fileID: 7400000, guid: ea34cf51553857f4f895ff5fb14ed55a, type: 2}
-  - {fileID: 7400000, guid: 8cf8e0352d4fed040871894e4b83b7cd, type: 2}
+  - {fileID: 7400000, guid: e3015c16afbfaa34e9f81eb812fb11e7, type: 2}
+  - {fileID: 7400000, guid: 7040502ade94483429b71a7b2feb6c77, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0

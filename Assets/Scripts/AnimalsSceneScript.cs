@@ -11,7 +11,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     #region Variables
 	
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
     public GameObject[] TestPictureObjects;
     public Sprite[] AnimalSprites;
 
@@ -36,6 +36,15 @@ public class AnimalsSceneScript : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 		
+    }
+    
+    IEnumerator Help_Animation(string selected_animation)
+    {
+        yield return new WaitForSeconds(4);
+        
+        Point.SetActive(true);
+        Point.GetComponent<Animation>().Play(selected_animation);
+
     }
 	
     #endregion
@@ -97,6 +106,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation1"));
                     
                     break;
                 case 1:
@@ -106,6 +116,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation2"));
                     
                     break;
                 default:
@@ -117,6 +128,8 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
 
         if (TestPictureObjects[i].tag != "trueAnswer") return;
+        Point.SetActive(false);
+        
         
         if (PictureCounter >= AnimalSprites.Length)
         {
@@ -140,6 +153,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
+                StartCoroutine(Help_Animation("AnswerAnimation1"));
                 
                 break;
             case 1:
@@ -149,6 +163,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
+                StartCoroutine(Help_Animation("AnswerAnimation2"));
                 
                 break;
             default:
