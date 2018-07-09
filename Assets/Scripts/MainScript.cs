@@ -88,8 +88,16 @@ public class MainScript : MonoBehaviour
     {
         SceneManager.LoadScene("AnimalsScene");
     }
-    
-    
+    public void goToVehicheScene()
+    {
+        SceneManager.LoadScene("VehicheScene");
+    }
+    public void goToFruitScene()
+    {
+        SceneManager.LoadScene("FruitsScene");
+    }
+
+
     public void MainMenuTransition()
     {
         //Kavram menüsündeki butonları deaktive et

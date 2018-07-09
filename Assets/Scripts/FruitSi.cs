@@ -7,61 +7,57 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class AnimalsSceneScript : MonoBehaviour {
-
+public class FruitSi : MonoBehaviour
+{
     #region Variables
-	
     public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject;
     public GameObject[] TestPictureObjects;
-    public Sprite[] AnimalSprites;
+    public Sprite[] FruitSprites;
 
     private int PictureCounter;
-    private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
-	
+    private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
+
     #endregion
-	
-    #region Unity Callbacks
-	
     // Use this for initialization
-    void Start () {
-		
+    #region Unity Callbacks
+    void Start()
+    {
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
             t.tag = "trueAnswer";
         }
-        showAnimalImage();
+        showFruitsImage();
     }
-	
+
     // Update is called once per frame
-    void Update () {
-		
+    void Update()
+    {
+
     }
-	
     #endregion
-    
     #region Function
-			
+
     public void RestartScene()
     {
-        SceneManager.LoadScene("AnimalsScene");
+        SceneManager.LoadScene("FruitsScene");
     }
-	
-    public void showAnimalImage()
+
+    public void showFruitsImage()
     {
-        if (PictureCounter < AnimalSprites.Length)
+        if (PictureCounter < FruitSprites.Length)
         {
-            ShowPictureObject.GetComponent<Image>().overrideSprite = AnimalSprites[PictureCounter];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = FruitSprites[PictureCounter];
             PictureCounter++;
         }
         else
         {
             ShowPictureObject.SetActive(false);
-			
+
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
-            
+
         }
     }
 
@@ -70,7 +66,7 @@ public class AnimalsSceneScript : MonoBehaviour {
         restartObject.SetActive(false);
         testStartObject.SetActive(false);
         goBackObject.SetActive(false);
-        
+
         questionTextObject.SetActive(true);
         foreach (var t in TestPictureObjects)
         {
@@ -78,35 +74,35 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
 
         PictureCounter = 0;
-        testAnimals(-1);
+        testFruits(-1);
     }
 
 
-    public void testAnimals(int i)
+    public void testFruits(int i)
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        
+
         if (i == -1)
         {
             switch (randomInteger)
             {
                 case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
+                    questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
+                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
-                    
+
                     break;
                 case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
+                    questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
+                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
-                    
+
                     break;
                 default:
                     Debug.Log("Unexpected random integer.");
@@ -117,66 +113,70 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
 
         if (TestPictureObjects[i].tag != "trueAnswer") return;
-        
-        if (PictureCounter >= AnimalSprites.Length)
+
+        if (PictureCounter >= FruitSprites.Length)
         {
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
 
             PictureCounter = 0;
-            
+
             restartObject.SetActive(true);
-            testStartObject.SetActive(true);   
+            testStartObject.SetActive(true);
             goBackObject.SetActive(true);
         }
-        
+
         switch (randomInteger)
         {
             case 0:
-                questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
+                questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
                 TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
-                
+
                 break;
             case 1:
-                questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
+                questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
                 TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
-                
+
                 break;
             default:
                 Debug.Log("Unexpected random integer.");
                 break;
         }
     }
-    
+
+
+
     private void LoadRandomColorPictureToOtherObject(int TestObjectNumber)
     {
-        var randomInteger = UnityEngine.Random.Range(0, AnimalSprites.Length);
-        
+        var randomInteger = UnityEngine.Random.Range(0, FruitSprites.Length);
+
         while (randomInteger == PictureCounter)
         {
-            randomInteger = UnityEngine.Random.Range(0, AnimalSprites.Length);
+            randomInteger = UnityEngine.Random.Range(0, FruitSprites.Length);
         }
-        
-        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = AnimalSprites[randomInteger];
+
+        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = FruitSprites[randomInteger];
         TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-        
+
     }
-    
-	
+
+
     public void GoToMainMenu()
     {
         SceneManager.LoadScene("MainScene");
     }
-	
+
+
 
     #endregion
+
 }
