@@ -32,6 +32,7 @@ public class MainScript : MonoBehaviour
     private Time AnswerTimeCheck;//Cevap süresini kontrol edip yardımcı animasyonu çağırmak için
     private int randomInt;//Test için gerekli random değerleri tutmak için
     
+    
     #endregion
 	
     #region Unity Callbacks
@@ -43,6 +44,9 @@ public class MainScript : MonoBehaviour
         ColorImageSprites.Add(RedPics);
         ColorImageSprites.Add(BluePics);
         ColorImageSprites.Add(YellowPics);
+        
+        PlayerPrefs.SetInt("StuNumber", 20);
+        
     }
 	
     // Update is called once per frame
