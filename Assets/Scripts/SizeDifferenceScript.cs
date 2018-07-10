@@ -161,7 +161,9 @@ public class SizeDifferenceScript : MonoBehaviour {
             QuestionText.SetActive(false);
 
             PictureCounter = 0;
-            
+
+            Point.SetActive(false); 
+            StopAllCoroutines();
             restartObject.SetActive(true);
             testStartObject.SetActive(true);   
             goBackObject.SetActive(true);

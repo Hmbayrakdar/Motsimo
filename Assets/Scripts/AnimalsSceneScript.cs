@@ -2,23 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+//using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Mono.Data.Sqlite; using System.Data; using System;
 
 public class AnimalsSceneScript : MonoBehaviour {
 
     #region Variables
 	
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject;
     public GameObject[] TestPictureObjects;
     public Sprite[] AnimalSprites;
-    
 
     private int PictureCounter;
-    private int[] FailCounter = new int[5];
-    private string TestName = "Animals";
     private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
 	
     #endregion
@@ -33,31 +30,12 @@ public class AnimalsSceneScript : MonoBehaviour {
         {
             t.tag = "trueAnswer";
         }
-        
-        
-
-        FailCounter[0] = 0;
-        FailCounter[1] = 0;
-        FailCounter[2] = 0;
-        FailCounter[3] = 0;
-        FailCounter[4] = 0;
-        
-        
         showAnimalImage();
     }
 	
     // Update is called once per frame
     void Update () {
 		
-    }
-    
-    IEnumerator Help_Animation(string selected_animation)
-    {
-        yield return new WaitForSeconds(4);
-        
-        Point.SetActive(true);
-        Point.GetComponent<Animation>().Play(selected_animation);
-
     }
 	
     #endregion
@@ -83,7 +61,6 @@ public class AnimalsSceneScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
-            
             
         }
     }
@@ -115,13 +92,11 @@ public class AnimalsSceneScript : MonoBehaviour {
             {
                 case 0:
                     questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                    
                     TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation1"));
                     
                     break;
                 case 1:
@@ -131,7 +106,6 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation2"));
                     
                     break;
                 default:
@@ -142,14 +116,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             return;
         }
 
-        if (TestPictureObjects[i].tag != "trueAnswer")
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
-        Point.SetActive(false);
-        
+        if (TestPictureObjects[i].tag != "trueAnswer") return;
         
         if (PictureCounter >= AnimalSprites.Length)
         {
@@ -158,7 +125,6 @@ public class AnimalsSceneScript : MonoBehaviour {
             questionTextObject.SetActive(false);
 
             PictureCounter = 0;
-            SendDataToDB();
             
             restartObject.SetActive(true);
             testStartObject.SetActive(true);   
@@ -174,7 +140,6 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation1"));
                 
                 break;
             case 1:
@@ -184,7 +149,6 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation2"));
                 
                 break;
             default:
@@ -211,29 +175,6 @@ public class AnimalsSceneScript : MonoBehaviour {
     public void GoToMainMenu()
     {
         SceneManager.LoadScene("MainScene");
-    }
-
-    public void SendDataToDB()
-    {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
-        dbconn.Open(); //Open connection to the database.
-
-        IDbCommand dbcmd = dbconn.CreateCommand();
-		
-        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
-		
-        dbcmd.CommandText = sqlQuery;
-        IDataReader reader = dbcmd.ExecuteReader();
-		
-        reader.Close();
-        reader = null;
-        dbcmd.Dispose();
-        dbcmd = null;
-        dbconn.Close();
-        dbconn = null;
     }
 	
 
