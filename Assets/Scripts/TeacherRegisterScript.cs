@@ -8,7 +8,7 @@ public class TeacherRegisterScript : MonoBehaviour
     public GameObject Email, Password, name, surname;
     public void TeacherRegisterChoice()
     {
-        //string tempEmail = Email.GetComponent<InputField>().text;
+       // string tempEmail = Email.GetComponent<InputField>().text;
         SceneManager.LoadScene("StudentRegisterScene");
     }
 
