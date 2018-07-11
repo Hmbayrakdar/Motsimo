@@ -67,7 +67,7 @@ public class VehicheSceneScript : MonoBehaviour {
         if (PictureCounter < VehicheSprites.Length)
         {
             ShowPictureObject.GetComponent<Image>().overrideSprite = VehicheSprites[PictureCounter];
-           informationText.GetComponent<Text>().text = "Bunun adı \n  " + CVehiches[PictureCounter] + "";
+           informationText.GetComponent<Text>().text = "Bunun adı \n" + CVehiches[PictureCounter] + "";
             PictureCounter++;
         }
         else
