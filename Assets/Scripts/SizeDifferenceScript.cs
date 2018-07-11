@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-//using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Mono.Data.Sqlite; using System.Data;
 
 public class SizeDifferenceScript : MonoBehaviour {
 	
@@ -18,6 +18,8 @@ public class SizeDifferenceScript : MonoBehaviour {
     public GameObject[] TestPictureObjects;
 
     private int PictureCounter;
+    private int[] FailCounter = new int[5];
+    private string TestName = "SizeDifference";
     private bool SmallPictureFlag, BigPictureFlag, isTesting;
 	
     #endregion
@@ -35,6 +37,11 @@ public class SizeDifferenceScript : MonoBehaviour {
         
         TestPictureObjects[0].tag = "trueAnswer";
         TestPictureObjects[1].tag = "trueAnswer";
+        
+        for (int i = 0; i < FailCounter.Length; i++)
+        {
+            FailCounter[i] = 0;
+        }
         
         ShowPictures("small");
     }
@@ -151,7 +158,12 @@ public class SizeDifferenceScript : MonoBehaviour {
             return;
         }
 
-        if (TestPictureObjects[i].tag != "trueAnswer") return;
+        if (TestPictureObjects[i].tag != "trueAnswer")
+        {
+            var number = PictureCounter - 1;
+            FailCounter[number]++;
+            return;
+        }
         Point.SetActive(false);
         
         if (PictureCounter >= SizeDifferenceSprites.Length)
@@ -159,12 +171,14 @@ public class SizeDifferenceScript : MonoBehaviour {
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             QuestionText.SetActive(false);
-
+            
+            SendDataToDB();
             PictureCounter = 0;
             
             restartObject.SetActive(true);
             testStartObject.SetActive(true);   
             goBackObject.SetActive(true);
+            return;
         }
         
         switch (randomInteger)
@@ -225,6 +239,29 @@ public class SizeDifferenceScript : MonoBehaviour {
     public void GoToConceptsMenu()
     {
         SceneManager.LoadScene("MainScene");
+    }
+    
+    public void SendDataToDB()
+    {
+        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+		
+        IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection(conn);
+        dbconn.Open(); //Open connection to the database.
+
+        IDbCommand dbcmd = dbconn.CreateCommand();
+		
+        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
+		
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
+		
+        reader.Close();
+        reader = null;
+        dbcmd.Dispose();
+        dbcmd = null;
+        dbconn.Close();
+        dbconn = null;
     }
     
     #endregion

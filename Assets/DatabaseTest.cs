@@ -13,7 +13,7 @@ public class DatabaseTest : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
 	{
-		Gam
+		
 	}
 	
 	// Update is called once per frame

@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Mono.Data.Sqlite; using System.Data; using System;
+using Mono.Data.Sqlite; using System.Data;
 
 public class AnimalsSceneScript : MonoBehaviour {
 
@@ -33,14 +33,13 @@ public class AnimalsSceneScript : MonoBehaviour {
         {
             t.tag = "trueAnswer";
         }
-        
-        
 
-        FailCounter[0] = 0;
-        FailCounter[1] = 0;
-        FailCounter[2] = 0;
-        FailCounter[3] = 0;
-        FailCounter[4] = 0;
+
+        for (int i = 0; i < FailCounter.Length; i++)
+        {
+            FailCounter[i] = 0;
+        }
+        
         
         
         showAnimalImage();
@@ -163,6 +162,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);   
             goBackObject.SetActive(true);
+            return;
         }
         
         switch (randomInteger)
