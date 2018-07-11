@@ -11,6 +11,9 @@ public class TeacherRegisterScript : MonoBehaviour
        // string tempEmail = Email.GetComponent<InputField>().text;
         SceneManager.LoadScene("StudentRegisterScene");
     }
-
+    public void RegisterT()
+    {
+        SceneManager.LoadScene("StudentRegisterScene");
+    }
    
 }
