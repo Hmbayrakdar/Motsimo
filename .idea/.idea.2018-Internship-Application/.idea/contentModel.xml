@@ -24,8 +24,8 @@
           <e p="SizeDifferenceScript.cs" t="Include" />
           <e p="StatisticsScripts.cs" t="Include" />
           <e p="StudentRegisterScript.cs" t="Include" />
-          <e p="TeacherInputScript.cs" t="Include" />
           <e p="TeacherRegisterScript.cs" t="Include" />
+          <e p="TeacherStatisticsScript.cs" t="Include" />
           <e p="VehicheSceneScript.cs" t="Include" />
         </e>
       </e>

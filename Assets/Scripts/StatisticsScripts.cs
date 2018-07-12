@@ -8,17 +8,13 @@ using UnityEngine.UI;
 public class StatisticsScripts : MonoBehaviour {
     #region Variables
 
-	public string TestTypeSearch="";
-	public string StuNoSearch="";
-
 	private GameObject GridWithRows;
 	private GameObject StartingRow;
 
     private string[] Testnames;
-    private int[] StudentNumbers;
+    private string[] StudentNumbers;
 	private List<int[]> Questions = new List<int[]>();
 	private int numberOfResults = 0;
-	
 		
     #endregion
 
@@ -60,22 +56,20 @@ public class StatisticsScripts : MonoBehaviour {
 	    IDbCommand dbcmd2 = dbconn.CreateCommand();
 
 	    string sqlQuery = "SELECT COUNT(*) FROM Test";
-	    //string sqlQuery = "SELECT COUNT(*) FROM Test where TestType Like '" + TestTypeSearch+"' and StuNo = "+StuNoSearch;
 	    
 	    dbcmd.CommandText = sqlQuery;
 	    IDataReader reader = dbcmd.ExecuteReader();
 
 	    reader.Read();
-	    Debug.Log(reader.GetInt32(0));
 
 	    numberOfResults = reader.GetInt32(0);
 
 	    Testnames = new string[numberOfResults];
-	    StudentNumbers = new int[numberOfResults];
+	    StudentNumbers = new string[numberOfResults];
         
-	    //sqlQuery = "SELECT TestType,StuNo,ifnull(q1,-1)q1,ifnull(q2,-1)q2,ifnull(q3,-1)q3,ifnull(q4,-1)q4,ifnull(q5,-1)q5,ifnull(q6,-1)q6,ifnull(q7,-1)q7,ifnull(q8,-1)q8,ifnull(q9,-1)q9,ifnull(q10,-1)q10 FROM Test";
-	    //sqlQuery = "Select * From Test where TestType Like '" + TestTypeSearch+"' and StuNo = "+StuNoSearch;
-	    sqlQuery = "Select * From Test";
+	    sqlQuery = "SELECT TestType,StuNo,ifnull(q1,-1)q1,ifnull(q2,-1)q2,ifnull(q3,-1)q3,ifnull(q4,-1)q4,ifnull(q5,-1)q5,ifnull(q6,-1)q6,ifnull(q7,-1)q7,ifnull(q8,-1)q8,ifnull(q9,-1)q9,ifnull(q10,-1)q10 FROM Test";
+	    
+
 	    dbcmd2.CommandText = sqlQuery;
         reader = dbcmd2.ExecuteReader();
 
@@ -87,17 +81,16 @@ public class StatisticsScripts : MonoBehaviour {
 		    var readerFieldCount = reader.FieldCount;
 
 		    Testnames[counter] = reader.GetString(0);
-		    StudentNumbers[counter] = reader.GetInt32(1);
+		    StudentNumbers[counter] = reader.GetString(1);
 
 		    int[] TempQuestionArray = new int[(readerFieldCount-2)];
 
 		    for (var i = 2; i < readerFieldCount; i++)
 		    {
-			    print(reader.GetInt32(i));
-			    if (reader.GetInt32(i) == -1) continue;
-			    
+			    if (reader.GetInt32(i) != -1)
+			    {
 				    TempQuestionArray[(i-2)] = reader.GetInt32(i);
-			    
+			    }
 		    }
 		    Questions.Add(TempQuestionArray);
 
@@ -142,23 +135,16 @@ public class StatisticsScripts : MonoBehaviour {
 			NewTestTypeObject.transform.GetChild(0).GetComponent<Text>().text = Testnames[i];
 			
 			GameObject NewStuNo = (GameObject) Instantiate(Resources.Load("StuNo"), NewRow.transform);
-			NewStuNo.transform.GetChild(0).GetComponent<Text>().text = StudentNumbers[i].ToString();
+			NewStuNo.transform.GetChild(0).GetComponent<Text>().text = StudentNumbers[i];
 
 			for (var j = 0; j < Questions[i].Length; j++)
 			{
-				if (Questions[i][j] == -1) continue;
 				GameObject NewQuestionObject = (GameObject) Instantiate(Resources.Load("Question"), NewRow.transform);
 				NewQuestionObject.transform.GetChild(0).GetComponent<Text>().text = Questions[i][j].ToString();
 			}
 		}
 
 		StartCoroutine(Example());
-	}
-
-	public void Search()
-	{
-		getData();
-		Display();
 	}
 	
 	#endregion
