@@ -324,7 +324,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1234201351}
-        m_MethodName: RegisterT
+        m_MethodName: SendDataToDB
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -879,8 +879,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.5}
-  m_SizeDelta: {x: -20, y: -13}
+  m_AnchoredPosition: {x: 0, y: 5.825}
+  m_SizeDelta: {x: -20, y: -11.65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &816365829
 MonoBehaviour:
@@ -1232,8 +1232,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Email: {fileID: 891127487}
   Password: {fileID: 623996122}
-  name: {fileID: 51485183}
-  surname: {fileID: 531010102}
+  Name: {fileID: 51485183}
+  Surname: {fileID: 531010102}
 --- !u!4 &1234201352
 Transform:
   m_ObjectHideFlags: 0
