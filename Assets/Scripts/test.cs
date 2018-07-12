@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class test : MonoBehaviour {
     public GameObject kutu;
-  
+    float x = 0.1f;
     // Use this for initialization
     void Start () {
 		
@@ -14,9 +14,9 @@ public class test : MonoBehaviour {
 	void Update () {
 		
 	}
-
+    
     public void buyu()
     {
-        kutu.transform.localScale += new Vector3(0,1, 0);
+        kutu.transform.localScale += new Vector3(0 , x , 0);
     }
 }
