@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Mono.Data.Sqlite;
+using System.Data;
+using System;
 
 public class VehicheSceneScript : MonoBehaviour {
 
     #region Variables
 
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Point,Rakun,SpeechBubble,informationText;
     public GameObject[] TestPictureObjects;
     public Sprite[] VehicheSprites;
+
     private int PictureCounter;
+    private int[] FailCounter = new int[5];
+    private string TestName = "Vehiches";
     private string[] Vehiches = { "Tır", "Uçak", "Otobüs", "Araba", "Gemi" };
+    private string[] CVehiches = { "TIR", "UÇAK", "OTOBÜS", "ARABA", "GEMİ" };
     #endregion
 
     #region Unity Callbacks
@@ -24,12 +31,19 @@ public class VehicheSceneScript : MonoBehaviour {
         {
             t.tag = "trueAnswer";
         }
+        FailCounter[0] = 0;
+        FailCounter[1] = 0;
+        FailCounter[2] = 0;
+        FailCounter[3] = 0;
+        FailCounter[4] = 0;
         showVehicheImage();
+       
+
 
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
     #endregion
@@ -39,17 +53,29 @@ public class VehicheSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("VehicheScene");
     }
+    IEnumerator Help_Animation(string selected_animation)
+    {
+        yield return new WaitForSeconds(4);
+
+        Point.SetActive(true);
+        Point.GetComponent<Animation>().Play(selected_animation);
+
+    }
 
     public void showVehicheImage()
     {
         if (PictureCounter < VehicheSprites.Length)
         {
             ShowPictureObject.GetComponent<Image>().overrideSprite = VehicheSprites[PictureCounter];
+           informationText.GetComponent<Text>().text = "Bunun adı \n" + CVehiches[PictureCounter] + "";
             PictureCounter++;
         }
         else
         {
             ShowPictureObject.SetActive(false);
+            Rakun.SetActive(false);
+            SpeechBubble.SetActive(false);
+            informationText.SetActive(false);
 
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
@@ -90,6 +116,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation1"));
 
                     break;
                 case 1:
@@ -99,6 +126,8 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation2"));
+
 
                     break;
                 default:
@@ -109,7 +138,13 @@ public class VehicheSceneScript : MonoBehaviour {
             return;
         }
 
-        if (TestPictureObjects[i].tag != "trueAnswer") return;
+        if (TestPictureObjects[i].tag != "trueAnswer")
+        {
+            int number = PictureCounter - 1;
+            FailCounter[number]++;
+            return;
+        }
+        Point.SetActive(false);
 
         if (PictureCounter >= VehicheSprites.Length)
         {
@@ -118,6 +153,7 @@ public class VehicheSceneScript : MonoBehaviour {
             questionTextObject.SetActive(false);
 
             PictureCounter = 0;
+            SendDataToDB();
 
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
@@ -133,6 +169,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
+                StartCoroutine(Help_Animation("AnswerAnimation1"));
 
                 break;
             case 1:
@@ -142,6 +179,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
+                StartCoroutine(Help_Animation("AnswerAnimation2"));
 
                 break;
             default:
@@ -163,6 +201,28 @@ public class VehicheSceneScript : MonoBehaviour {
         TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
 
     }
+    public void SendDataToDB()
+    {
+        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+
+        IDbConnection dbconn;
+        dbconn = (IDbConnection)new SqliteConnection(conn);
+        dbconn.Open(); //Open connection to the database.
+
+        IDbCommand dbcmd = dbconn.CreateCommand();
+
+        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('" + TestName + "'," + PlayerPrefs.GetInt("StuNumber") + "," + FailCounter[0] + "," + FailCounter[1] + "," + FailCounter[2] + "," + FailCounter[3] + "," + FailCounter[4] + ")";
+
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
+
+        reader.Close();
+        reader = null;
+        dbcmd.Dispose();
+        dbcmd = null;
+        dbconn.Close();
+        dbconn = null;
+    }
 
 
     public void GoToMainMenu()
@@ -170,4 +230,5 @@ public class VehicheSceneScript : MonoBehaviour {
         SceneManager.LoadScene("MainScene");
     }
     #endregion
+
 }
