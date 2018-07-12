@@ -11,7 +11,7 @@ using Mono.Data.Sqlite;
 
 public class TeacherRegisterScript : MonoBehaviour
 {
-    public GameObject Email, Password, Name, Surname;
+    public GameObject Email1, Password1, Name1, Surname1;
     public void TeacherRegisterChoice()
     {
         SceneManager.LoadScene("StudentRegisterScene");
@@ -27,7 +27,7 @@ public class TeacherRegisterScript : MonoBehaviour
 
         IDbCommand dbcmd = dbconn.CreateCommand();
 
-        string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ("+Email+","+Password+","+Name+","+Surname+")";
+        string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ("+Email1+","+Password1+","+Name1+","+Surname1+")";
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
 
@@ -39,7 +39,7 @@ public class TeacherRegisterScript : MonoBehaviour
         dbconn = null;
 
 
-        SceneManager.LoadScene("StudentRegisterScene");
+        //SceneManager.LoadScene("StudentRegisterScene");
     }
 
 }

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Mono.Data.Sqlite;
+using System.Data;
+using System;
 
 public class StudentRegisterScript : MonoBehaviour
 {
