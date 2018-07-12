@@ -601,6 +601,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8439a197a5217f24b8f2206e61184228, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  email: {fileID: 1471465606}
+  password: {fileID: 93042336}
 --- !u!4 &552346187
 Transform:
   m_ObjectHideFlags: 0
