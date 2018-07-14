@@ -11,9 +11,11 @@ public class VehicheSceneScript : MonoBehaviour {
 
     #region Variables
 
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Point,Rakun,SpeechBubble,informationText;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Rakun, SpeechBubble, informationText, AnimationBg, Animationtxt;
     public GameObject[] TestPictureObjects;
+    public GameObject[] StarObjects;
     public Sprite[] VehicheSprites;
+
 
     private int PictureCounter;
     private int[] FailCounter = new int[5];
@@ -24,7 +26,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
     #region Unity Callbacks
     // Use this for initialization
-    void Start () {
+    void Start() {
 
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
@@ -37,15 +39,15 @@ public class VehicheSceneScript : MonoBehaviour {
         FailCounter[3] = 0;
         FailCounter[4] = 0;
         showVehicheImage();
-       
+
 
 
     }
 
     // Update is called once per frame
-    void Update () {
-		
-	}
+    void Update() {
+
+    }
     #endregion
 
     #region Function
@@ -53,21 +55,13 @@ public class VehicheSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("VehicheScene");
     }
-    IEnumerator Help_Animation(string selected_animation)
-    {
-        yield return new WaitForSeconds(4);
-
-        Point.SetActive(true);
-        Point.GetComponent<Animation>().Play(selected_animation);
-
-    }
 
     public void showVehicheImage()
     {
         if (PictureCounter < VehicheSprites.Length)
         {
             ShowPictureObject.GetComponent<Image>().overrideSprite = VehicheSprites[PictureCounter];
-           informationText.GetComponent<Text>().text = "Bunun adı \n" + CVehiches[PictureCounter] + "";
+            informationText.GetComponent<Text>().text = "Bunun adı \n" + CVehiches[PictureCounter] + "";
             PictureCounter++;
         }
         else
@@ -116,7 +110,6 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation1"));
 
                     break;
                 case 1:
@@ -126,8 +119,6 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation2"));
-
 
                     break;
                 default:
@@ -140,11 +131,12 @@ public class VehicheSceneScript : MonoBehaviour {
 
         if (TestPictureObjects[i].tag != "trueAnswer")
         {
+
             int number = PictureCounter - 1;
             FailCounter[number]++;
             return;
         }
-        Point.SetActive(false);
+
 
         if (PictureCounter >= VehicheSprites.Length)
         {
@@ -169,7 +161,12 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation1"));
+                StarObjects[0].SetActive(true);
+                StarObjects[1].SetActive(true);
+                StarObjects[2].SetActive(true);
+                StarObjects[3].SetActive(true);
+                AnimationBg.SetActive(true);
+                Animationtxt.SetActive(true);
 
                 break;
             case 1:
@@ -179,7 +176,12 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation2"));
+                StarObjects[0].SetActive(true);
+                StarObjects[1].SetActive(true);
+                StarObjects[2].SetActive(true);
+                StarObjects[3].SetActive(true);
+                AnimationBg.SetActive(true);
+                Animationtxt.SetActive(true);
 
                 break;
             default:
@@ -190,6 +192,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
     private void LoadRandomColorPictureToOtherObject(int TestObjectNumber)
     {
+
         var randomInteger = UnityEngine.Random.Range(0, VehicheSprites.Length);
 
         while (randomInteger == PictureCounter)
@@ -229,6 +232,39 @@ public class VehicheSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("MainScene");
     }
+
+    int star = 0;
+    int c = 0;
+    public void Select1()
+    {
+        star = 0; c++;
+        ex();
+    }
+    public void Select2()
+    {
+        star = 1; c++;
+        ex();
+    }
+    public void Select3()
+    {
+        star = 2; c++;
+        ex();
+    }
+    public void Select4()
+    {
+        star = 3; c++;
+        ex();
+    }
+    public void ex()
+    {
+        StarObjects[star].SetActive(false);
+        if (c == 4)
+        {
+            AnimationBg.SetActive(false);
+            c = 0;
+            Animationtxt.SetActive(false);
+        }
+    } 
     #endregion
 
 }
