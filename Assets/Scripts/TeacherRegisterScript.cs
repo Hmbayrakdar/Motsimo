@@ -26,8 +26,10 @@ public class TeacherRegisterScript : MonoBehaviour
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
+        
+        
 
-        string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ("+Email1+","+Password1+","+Name1+","+Surname1+")";
+        string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ('"+Email1.GetComponent<InputField>().text+"','"+Password1.GetComponent<InputField>().text+"','"+Name1.GetComponent<InputField>().text+"','"+Surname1.GetComponent<InputField>().text+"')";
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
 
@@ -40,6 +42,11 @@ public class TeacherRegisterScript : MonoBehaviour
 
 
         //SceneManager.LoadScene("StudentRegisterScene");
+    }
+
+    public void goBackToTeacherLoginScreen()
+    {
+        SceneManager.LoadScene("TeacherInputScene");
     }
 
 }

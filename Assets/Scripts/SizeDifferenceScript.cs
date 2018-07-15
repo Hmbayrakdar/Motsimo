@@ -11,11 +11,15 @@ public class SizeDifferenceScript : MonoBehaviour {
 	
     #region Variables
 
-    public GameObject QuestionText;
+    public GameObject questionTextObject;
     public GameObject[] ShowPictureObjects;
     public Sprite[] SizeDifferenceSprites;
-    public GameObject restartObject, testStartObject, goBackObject, Point;
+    public GameObject restartObject, testStartObject, goBackObject;
     public GameObject[] TestPictureObjects;
+    
+    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    private AudioSource AudioSource;
+    private bool noAudioPlaying = true;
 
     private int PictureCounter;
     private int[] FailCounter = new int[5];
@@ -43,23 +47,94 @@ public class SizeDifferenceScript : MonoBehaviour {
             FailCounter[i] = 0;
         }
         
+        AudioSource = gameObject.GetComponent<AudioSource>();
+        
+        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Size Difference/Identify/Büyük"),
+            (AudioClip)Resources.Load("Sound/Size Difference/Identify/Küçük"),
+        };
+        
+        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Size Difference/Question/Hangisi büyük göster"),
+            (AudioClip)Resources.Load("Sound/Size Difference/Question/Hangisi küçük göster"), 
+        };
+        
+        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
+            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
+            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
+        };
+        
         ShowPictures("small");
     }
 	
     // Update is called once per frame
     void Update () {
-		
-    }
-    
-    IEnumerator Help_Animation(string selected_animation)
-    {
-        yield return new WaitForSeconds(4);
         
-        Point.SetActive(true);
-        Point.GetComponent<Animation>().Play(selected_animation);
-
+    } 
+    
+    IEnumerator IdentifySound(string key)
+    {
+        noAudioPlaying = false;
+        
+        switch (key)
+        {
+            case "small":
+                SmallPictureFlag = true;
+                AudioSource.clip = IdentificationAudioClips[1];
+                AudioSource.Play();
+                break;
+            case "big":
+                BigPictureFlag = true;
+                AudioSource.clip = IdentificationAudioClips[0];
+                AudioSource.Play();
+                break;
+            case "test":
+                isTesting = true;
+                ShowPictures(key);
+                noAudioPlaying = true;
+                yield break;
+            default:
+                Debug.Log("Unexpected function parameter.");
+                break;
+        }
+        
+        
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        ShowPictures(key);
+        noAudioPlaying = true;
     }
     
+    IEnumerator CongratsSound(int i)
+    {
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+
+        noAudioPlaying = false;
+        
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        if (PictureCounter >= SizeDifferenceSprites.Length)
+        {
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+            
+            SendDataToDB();
+            PictureCounter = 0;
+
+            StopAllCoroutines();
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);   
+            goBackObject.SetActive(true);
+            yield break;
+        }
+
+        
+        DifferenceTest(i);
+        noAudioPlaying = true;
+    }
     #endregion
     
     #region Functions
@@ -68,32 +143,36 @@ public class SizeDifferenceScript : MonoBehaviour {
     {
         SceneManager.LoadScene("SizeDifference");
     }
+    
+    
+    
+    
+    public void PlaySound(String key)
+    {
+        if(noAudioPlaying)
+            StartCoroutine(IdentifySound(key));
+    }
+    
+    public void PlayCongrats(int i)
+    {
+        if(noAudioPlaying)
+            StartCoroutine(CongratsSound(i));
+    }
 
     public void ShowPictures(String key)
     {
-        switch (key)
-        {
-            case "small":
-                SmallPictureFlag = true;
-                break;
-            case "big":
-                BigPictureFlag = true;
-                break;
-            case "test":
-                isTesting = true;
-                break;
-            default:
-                Debug.Log("Unexpected function parameter.");
-                break;
-        }
+        
 
         if (isTesting == true)
         {
             TestPictureObjects[0].SetActive(true);
             TestPictureObjects[1].SetActive(true);
-            QuestionText.SetActive(true);
-            goBackObject.SetActive(false);
+            questionTextObject.SetActive(true);
             
+            goBackObject.SetActive(false);
+            restartObject.SetActive(false);
+            testStartObject.SetActive(false);
+
             TestPictureObjects[0].tag = "trueAnswer";
             TestPictureObjects[1].tag = "trueAnswer";
             PictureCounter = 0;
@@ -158,28 +237,10 @@ public class SizeDifferenceScript : MonoBehaviour {
             return;
         }
 
-        if (TestPictureObjects[i].tag != "trueAnswer")
+        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             var number = PictureCounter - 1;
             FailCounter[number]++;
-            return;
-        }
-        Point.SetActive(false);
-        
-        if (PictureCounter >= SizeDifferenceSprites.Length)
-        {
-            TestPictureObjects[0].SetActive(false);
-            TestPictureObjects[1].SetActive(false);
-            QuestionText.SetActive(false);
-            
-            SendDataToDB();
-            PictureCounter = 0;
-
-            Point.SetActive(false); 
-            StopAllCoroutines();
-            restartObject.SetActive(true);
-            testStartObject.SetActive(true);   
-            goBackObject.SetActive(true);
             return;
         }
         
@@ -219,16 +280,24 @@ public class SizeDifferenceScript : MonoBehaviour {
         switch (randomInteger)
         {
             case 0://The question will ask the bigger picture
-                QuestionText.GetComponent<Text>().text = "Hangisi büyük göster.";
+                
+                AudioSource.clip = QuestionAudioClips[0];
+                AudioSource.Play();
+                
+                questionTextObject.GetComponent<Text>().text = "Hangisi büyük göster.";
+                
                 TestPictureObjects[bigPicture].tag = "trueAnswer";
                 TestPictureObjects[smallPicture].tag = "falseAnswer";
-                StartCoroutine(Help_Animation("AnswerAnimation"+(bigPicture+1).ToString()));
                 break;
             case 1://The question will ask the smaller picture
-                QuestionText.GetComponent<Text>().text = "Hangisi küçük göster.";
+                
+                AudioSource.clip = QuestionAudioClips[1];
+                AudioSource.Play();
+                
+                questionTextObject.GetComponent<Text>().text = "Hangisi küçük göster.";
+                
                 TestPictureObjects[bigPicture].tag = "falseAnswer";
                 TestPictureObjects[smallPicture].tag = "trueAnswer";
-                StartCoroutine(Help_Animation("AnswerAnimation"+(smallPicture+1).ToString()));
                 break;
             default:
                 Debug.Log("Unexpected random.");
