@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement; 
 using UnityEngine.UI;
+using Mono.Data.Sqlite; using System.Data;
 
 public class NumbersSceneScript : MonoBehaviour {
 
@@ -15,6 +16,9 @@ public class NumbersSceneScript : MonoBehaviour {
     public GameObject[] TestPictureObjects;
 
     private int PictureCounter,randomInt;
+	private int[] FailCounter = new int[9];
+	private string TestName = "Numbers";
+	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
 	
     #endregion
 	
@@ -27,6 +31,11 @@ public class NumbersSceneScript : MonoBehaviour {
 	    foreach (var t in TestPictureObjects)
 	    {
 		    t.tag = "trueAnswer";
+	    }
+	    
+	    for (var i = 0; i < FailCounter.Length; i++)
+	    {
+		    FailCounter[i] = 0;
 	    }
     }
 	
@@ -89,6 +98,13 @@ public class NumbersSceneScript : MonoBehaviour {
 	{
 		goBackObject.SetActive(false);
 		QuestionText.SetActive(true);
+		
+		if (!TestPictureObjects[i].CompareTag("trueAnswer"))
+		{
+			var number = PictureCounter - 1;
+			FailCounter[number]++;
+			return;
+		}
 
 		if (PictureCounter >= 9)
 		{
@@ -96,17 +112,21 @@ public class NumbersSceneScript : MonoBehaviour {
 			foreach(var t in TestPictureObjects)
 				t.SetActive(false);
 			
+			SendDataToDB();
 			restartObject.SetActive(true);
 			testStartObject.SetActive(true);
 			goBackObject.SetActive(true);
 			QuestionText.SetActive(false);
+			return;
 		}
+
 		
-		if (!TestPictureObjects[i].CompareTag("trueAnswer")) return;
+			
 		Point.SetActive(false);
 
+		
+		QuestionText.GetComponent<Text>().text = "Hangisi " + NumbersInTextForm[PictureCounter] +" göster.";
 		PictureCounter++;
-		QuestionText.GetComponent<Text>().text = "Hangisi " + PictureCounter +" göster.";
 		randomInt = UnityEngine.Random.Range(1, 10);
 		
 		while (randomInt == PictureCounter)
@@ -140,6 +160,29 @@ public class NumbersSceneScript : MonoBehaviour {
 				Debug.Log("Unexpected randomint");
 				break;
 		}
+	}
+	
+	public void SendDataToDB()
+	{
+		string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+		
+		IDbConnection dbconn;
+		dbconn = (IDbConnection) new SqliteConnection(conn);
+		dbconn.Open(); //Open connection to the database.
+
+		IDbCommand dbcmd = dbconn.CreateCommand();
+		
+		string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5,q6,q7,q8,q9) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+","+FailCounter[5]+","+FailCounter[6]+","+FailCounter[7]+","+FailCounter[8]+")";
+		
+		dbcmd.CommandText = sqlQuery;
+		IDataReader reader = dbcmd.ExecuteReader();
+		
+		reader.Close();
+		reader = null;
+		dbcmd.Dispose();
+		dbcmd = null;
+		dbconn.Close();
+		dbconn = null;
 	}
 	
 

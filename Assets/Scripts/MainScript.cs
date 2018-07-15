@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 using Random = System.Random;
+using Mono.Data.Sqlite; using System.Data;
+using System.Runtime.InteropServices;
 
 public class MainScript : MonoBehaviour
 {
@@ -29,7 +31,8 @@ public class MainScript : MonoBehaviour
     private int PictureCounter;//Kaçıncı resimde olduğunu belirlemek için
     private string ChosenColor;//Hangi ana rengin seçildiğini tutmak için
     private bool yellowFlag, redFlag, blueFlag;//Renklerin bakıldığını onaylamak için
-    private Time AnswerTimeCheck;//Cevap süresini kontrol edip yardımcı animasyonu çağırmak için
+    private int[] FailCounter = new int[5];
+    private string TestName = "Color";
     private int randomInt;//Test için gerekli random değerleri tutmak için
     
     
@@ -46,6 +49,11 @@ public class MainScript : MonoBehaviour
         ColorImageSprites.Add(YellowPics);
         
         PlayerPrefs.SetInt("StuNumber", 20);
+        
+        for (int i = 0; i < FailCounter.Length; i++)
+        {
+            FailCounter[i] = 0;
+        }
         
     }
 	
@@ -286,8 +294,39 @@ public class MainScript : MonoBehaviour
     {
         randomInt = UnityEngine.Random.Range(1, 3);
 
-        if (Test[i].tag != "trueAnswer") return;
+        if (Test[i].tag != "trueAnswer")
+        {
+            var firstColorTreshold = 6;
+            var secondColorTreshold = 11;
+            int number = 0;
+            if (PictureCounter <= 5)
+            {
+                number = PictureCounter - 1;
+            }
+            else if (PictureCounter <= 10)
+            {
+                number = PictureCounter - firstColorTreshold;
+            }
+            else if (PictureCounter <= 15)
+            {
+                number = PictureCounter - secondColorTreshold;
+            }
+            
+            Debug.Log(number + " PictureCounter: " + PictureCounter);
+            
+            FailCounter[number]++;
+            return;
+        }
         Point.SetActive(false);
+
+        if (PictureCounter == 5 || PictureCounter == 10 || PictureCounter == 15)
+        {
+            SendDataToDB();
+            for (int k = 0; k < FailCounter.Length; k++)
+            {
+                FailCounter[k] = 0;
+            }
+        }
         
         switch (randomInt)
         {
@@ -300,20 +339,25 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,0);
                     questionText.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+                    TestName = "ColorRed";
                 }
+                
                 else if (PictureCounter <= 9)
                 {
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,1);
                     questionText.GetComponent<Text>().text = "Hangisi mavi göster.";
+                    TestName = "ColorBlue";
                 }
+                
                 else if (PictureCounter <= 14)
                 {
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,2);
                     questionText.GetComponent<Text>().text = "Hangisi sarı göster.";
+                    TestName = "ColorYellow";
                 }
                 else
                 {
@@ -393,6 +437,29 @@ public class MainScript : MonoBehaviour
         }
 
         Test[TestObjectNumber].tag = "falseAnswer";
+    }
+    
+    public void SendDataToDB()
+    {
+        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+		
+        IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection(conn);
+        dbconn.Open(); //Open connection to the database.
+
+        IDbCommand dbcmd = dbconn.CreateCommand();
+		
+        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
+		
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
+		
+        reader.Close();
+        reader = null;
+        dbcmd.Dispose();
+        dbcmd = null;
+        dbconn.Close();
+        dbconn = null;
     }
     
     #endregion
