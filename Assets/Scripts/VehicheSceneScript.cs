@@ -11,7 +11,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
     #region Variables
 
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Rakun, SpeechBubble, informationText, AnimationBg, Animationtxt;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Rakun, SpeechBubble, informationText, AnimationBg, Animationtxt,APanel;
     public GameObject[] TestPictureObjects;
     public GameObject[] StarObjects;
     public Sprite[] VehicheSprites;
@@ -161,6 +161,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(1);
                 PictureCounter++;
+                APanel.SetActive(true);
                 StarObjects[0].SetActive(true);
                 StarObjects[1].SetActive(true);
                 StarObjects[2].SetActive(true);
@@ -176,6 +177,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
+                APanel.SetActive(true);
                 StarObjects[0].SetActive(true);
                 StarObjects[1].SetActive(true);
                 StarObjects[2].SetActive(true);
@@ -263,6 +265,7 @@ public class VehicheSceneScript : MonoBehaviour {
             AnimationBg.SetActive(false);
             c = 0;
             Animationtxt.SetActive(false);
+            APanel.SetActive(false);
         }
     } 
     #endregion
