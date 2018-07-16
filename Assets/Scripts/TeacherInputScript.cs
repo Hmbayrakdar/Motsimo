@@ -5,10 +5,12 @@ using UnityEngine.SceneManagement;
 using Mono.Data.Sqlite;
 using System.Data;
 using System;
+using System.IO;
 using UnityEngine.UI;
 
 
-public class TeacherInputScript : MonoBehaviour {
+public class TeacherInputScript : MonoBehaviour
+{
 
     public GameObject email;
     public GameObject password;
@@ -19,13 +21,40 @@ public class TeacherInputScript : MonoBehaviour {
     private string Email1;
     private string Password1;
 
+    private string conn;
+
 
     public void Input()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+        //Path to database.
+        
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            string dbPath = System.IO.Path.Combine (Application.persistentDataPath, "Database.db");
+            var dbTemplatePath = System.IO.Path.Combine(Application.streamingAssetsPath, "Database.db");
+ 
+            if (!System.IO.File.Exists(dbPath)) {
+                
+                // Must use WWW for streaming asset
+                WWW reader1 = new WWW(dbTemplatePath);
+                while ( !reader1.isDone) {}
+                System.IO.File.WriteAllBytes(dbPath, reader1.bytes);
+                     
+            }
+
+            conn = dbPath;
+
+        }
+        else
+        {
+            // WINDOWS
+            conn = "URI=file:" + Application.dataPath + "/Database/Database.db";
+        }
+
 
         IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection(conn);
+        dbconn = (IDbConnection) new SqliteConnection(conn);
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -55,7 +84,7 @@ public class TeacherInputScript : MonoBehaviour {
         Email = email.GetComponent<InputField>().text;
         Password = password.GetComponent<InputField>().text;
 
-        if (Email==Email1 && Password==Password1)
+        if (Email == Email1 && Password == Password1)
         {
             print("Login sucsessful");
             SceneManager.LoadScene("StudentRegisterScene");
@@ -64,38 +93,13 @@ public class TeacherInputScript : MonoBehaviour {
         {
             print("Giriş Başarısız");
         }
-        
+
     }
 
     public void Register()
     {
         SceneManager.LoadScene("TeacherRegisterScene");
     }
+ 
 }
-   /* public void testDB()
-    {
-        string conn = "URI=file:" + Application.dataPath + "/Database.db"; //Path to database.
-		
-		IDbConnection dbconn;
-		dbconn = (IDbConnection) new SqliteConnection(conn);
-		dbconn.Open(); //Open connection to the database.
 
-		IDbCommand dbcmd = dbconn.CreateCommand();
-
-
-        string sqlQuery = "SELECT Email, Password, FROM Teacher";
-        //string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ("++","++","++","++","++","++""++")";
-        //string sqlQuery3 = "INSERT INTO Teacher (Email,Password,Name,Surname) values ("++","++","++","++")";
-
-        dbcmd.CommandText = sqlQuery;
-		IDataReader reader = dbcmd.ExecuteReader();
-		
-		reader.Close();
-		reader = null;
-		dbcmd.Dispose();
-		dbcmd = null;
-		dbconn.Close();
-		dbconn = null;
-
-
-    }*/

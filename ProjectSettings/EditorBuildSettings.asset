@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/TeacherInputScene.unity
+    guid: be364e96d386ba245a2edc84cb6d6437
+  - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 226278d50da9693488edb5b9f12e6626
   - enabled: 1
@@ -26,9 +29,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LogInScene.unity
     guid: 74d21eaf2f5c2e146a1b36c8faea918a
-  - enabled: 1
-    path: Assets/Scenes/TeacherInputScene.unity
-    guid: be364e96d386ba245a2edc84cb6d6437
   - enabled: 1
     path: Assets/Scenes/StudentRegisterScene.unity
     guid: 8d1876aeee2636e47ad24f34826ba90b
