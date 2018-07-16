@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mono.Data.Sqlite;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.UI;
 
+
+/*
 public class test : MonoBehaviour {
     private string[] Testnames;
     private string[] StudentNumbers;
@@ -83,3 +88,4 @@ public class test : MonoBehaviour {
         dbconn = null;
     }
 }
+*/
