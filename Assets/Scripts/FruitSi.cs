@@ -84,10 +84,15 @@ public class FruitSi : MonoBehaviour
         showFruitsImage();
         noAudioPlaying = true;
     }
-    
+
     IEnumerator CongratsSound(int i)
     {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
+        {
+            int number = PictureCounter - 1;
+            FailCounter[number]++;
+            yield break;
+        }
 
         noAudioPlaying = false;
         
@@ -208,12 +213,6 @@ public class FruitSi : MonoBehaviour
             return;
             
         }
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
         
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
@@ -269,6 +268,10 @@ public class FruitSi : MonoBehaviour
 
     public void SendDataToDB()
     {
+        for (var i = 0; i < FailCounter.Length; i++)
+        {
+            print(i + " " + FailCounter[i] );
+        }
         string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
 
         IDbConnection dbconn;

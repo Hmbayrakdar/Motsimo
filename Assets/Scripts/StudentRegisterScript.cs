@@ -43,8 +43,7 @@ public class StudentRegisterScript : MonoBehaviour
     }
     public void GoBackToSelect()
     {
-        StudentSelect.SetActive(true);
-        StudentRegister.SetActive(false);
+	    SceneManager.LoadScene("StudentRegisterScene");
     }
 
 	public void GoToTeacherStatisticsScene()
