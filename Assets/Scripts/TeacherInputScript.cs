@@ -58,7 +58,6 @@ public class TeacherInputScript : MonoBehaviour {
         if (Email==Email1 && Password==Password1)
         {
             print("Login sucsessful");
-            PlayerPrefs.SetString("TeacherEmail", Email);
             SceneManager.LoadScene("StudentRegisterScene");
         }
         else
@@ -73,4 +72,30 @@ public class TeacherInputScript : MonoBehaviour {
         SceneManager.LoadScene("TeacherRegisterScene");
     }
 }
-   
+   /* public void testDB()
+    {
+        string conn = "URI=file:" + Application.dataPath + "/Database.db"; //Path to database.
+		
+		IDbConnection dbconn;
+		dbconn = (IDbConnection) new SqliteConnection(conn);
+		dbconn.Open(); //Open connection to the database.
+
+		IDbCommand dbcmd = dbconn.CreateCommand();
+
+
+        string sqlQuery = "SELECT Email, Password, FROM Teacher";
+        //string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ("++","++","++","++","++","++""++")";
+        //string sqlQuery3 = "INSERT INTO Teacher (Email,Password,Name,Surname) values ("++","++","++","++")";
+
+        dbcmd.CommandText = sqlQuery;
+		IDataReader reader = dbcmd.ExecuteReader();
+		
+		reader.Close();
+		reader = null;
+		dbcmd.Dispose();
+		dbcmd = null;
+		dbconn.Close();
+		dbconn = null;
+
+
+    }*/

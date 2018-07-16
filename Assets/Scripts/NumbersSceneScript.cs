@@ -12,12 +12,8 @@ public class NumbersSceneScript : MonoBehaviour {
 
 	#region Variables
 
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
+    public GameObject QuestionText, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
     public GameObject[] TestPictureObjects;
-	
-	private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
-	private AudioSource AudioSource;
-	private bool noAudioPlaying = true;
 
     private int PictureCounter,randomInt;
 	private int[] FailCounter = new int[9];
@@ -31,8 +27,7 @@ public class NumbersSceneScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-	    PictureCounter = 0;
-	    
+	    PictureCounter = 1;
 	    foreach (var t in TestPictureObjects)
 	    {
 		    t.tag = "trueAnswer";
@@ -42,39 +37,6 @@ public class NumbersSceneScript : MonoBehaviour {
 	    {
 		    FailCounter[i] = 0;
 	    }
-	    RacoonText.GetComponent<Text>().text = NumbersInTextForm[0];
-	    
-	    AudioSource = gameObject.GetComponent<AudioSource>();
-        
-	    IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Numbers/Identify/1"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/2"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/3"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/4"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/5"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/6"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/7"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/8"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/9")
-	    };
-        
-	    QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 1 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 2 göster"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 3 göster"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 4 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 5 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 6 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 7 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 8 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 9 göster")
-	    };
-        
-	    congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-		    (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-		    (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-		    (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-		    (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-	    };
-	    showNumbers();
     }
 	
     // Update is called once per frame
@@ -82,46 +44,14 @@ public class NumbersSceneScript : MonoBehaviour {
 		
     }
 	
-	IEnumerator IdentifySound()
+	IEnumerator Help_Animation(string selected_animation)
 	{
-		noAudioPlaying = false;
+		yield return new WaitForSeconds(4);
         
-		AudioSource.clip = IdentificationAudioClips[PictureCounter-1];
-		AudioSource.Play();
-		yield return new WaitForSeconds(AudioSource.clip.length);
-        
-		showNumbers();
-		noAudioPlaying = true;
-	}
-    
-	IEnumerator CongratsSound(int i)
-	{
-		if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+		Point.SetActive(true);
+		Point.GetComponent<Animation>().Play(selected_animation);
 
-		noAudioPlaying = false;
-        
-		AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
-		AudioSource.Play();
-		yield return new WaitForSeconds(AudioSource.clip.length);
-        
-		if (PictureCounter >= 9)
-		{
-			questionTextObject.SetActive(false);
-			foreach(var t in TestPictureObjects)
-				t.SetActive(false);
-			
-			SendDataToDB();
-			restartObject.SetActive(true);
-			testStartObject.SetActive(true);
-			goBackObject.SetActive(true);
-			questionTextObject.SetActive(false);
-			yield break;
-		}
-        
-		testNumbers(i);
-		noAudioPlaying = true;
 	}
-	
     
     #endregion
     
@@ -131,31 +61,17 @@ public class NumbersSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("NumbersScene");
     }
-	
-	public void PlaySound()
-	{
-		if(noAudioPlaying)
-			StartCoroutine(IdentifySound());
-	}
-    
-	public void PlayCongrats(int i)
-	{
-		if(noAudioPlaying)
-			StartCoroutine(CongratsSound(i));
-	}
 
 	public void showNumbers()
 	{
 		if (PictureCounter < 9)
 		{
-			RacoonText.GetComponent<Text>().text = NumbersInTextForm[PictureCounter];
 			PictureCounter++;
 			ShowPictureObject.GetComponent<Text>().text = PictureCounter.ToString();
 		}
 		else
 		{
 			ShowPictureObject.SetActive(false);
-			Racoon.SetActive(false);
 			
 			restartObject.SetActive(true);
 			testStartObject.SetActive(true);
@@ -181,7 +97,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	public void testNumbers(int i)
 	{
 		goBackObject.SetActive(false);
-		questionTextObject.SetActive(true);
+		QuestionText.SetActive(true);
 		
 		if (!TestPictureObjects[i].CompareTag("trueAnswer"))
 		{
@@ -189,11 +105,27 @@ public class NumbersSceneScript : MonoBehaviour {
 			FailCounter[number]++;
 			return;
 		}
-		
-		AudioSource.clip = QuestionAudioClips[PictureCounter];
-		AudioSource.Play();
 
-		questionTextObject.GetComponent<Text>().text = "Hangisi " + NumbersInTextForm[PictureCounter] +" göster.";
+		if (PictureCounter >= 9)
+		{
+			QuestionText.SetActive(false);
+			foreach(var t in TestPictureObjects)
+				t.SetActive(false);
+			
+			SendDataToDB();
+			restartObject.SetActive(true);
+			testStartObject.SetActive(true);
+			goBackObject.SetActive(true);
+			QuestionText.SetActive(false);
+			return;
+		}
+
+		
+			
+		Point.SetActive(false);
+
+		
+		QuestionText.GetComponent<Text>().text = "Hangisi " + NumbersInTextForm[PictureCounter] +" göster.";
 		PictureCounter++;
 		randomInt = UnityEngine.Random.Range(1, 10);
 		
@@ -214,6 +146,7 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[1].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[1].tag = "falseAnswer";
+				StartCoroutine(Help_Animation("AnswerAnimation1"));
 				break;
 			case 1:
 				TestPictureObjects[randomInt].tag = "trueAnswer";
@@ -221,6 +154,7 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[0].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[0].tag = "falseAnswer";
+				StartCoroutine(Help_Animation("AnswerAnimation2"));
 				break;
 			default:
 				Debug.Log("Unexpected randomint");

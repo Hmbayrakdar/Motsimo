@@ -2,23 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+//using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mono.Data.Sqlite;
 using System.Data;
-
+using System;
 
 public class FruitSi : MonoBehaviour
 {
     #region Variables
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
     public GameObject[] TestPictureObjects;
     public Sprite[] FruitSprites;
-    
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
-    private AudioSource AudioSource;
-    private bool noAudioPlaying = true;
 
     private int PictureCounter;
     private int[] FailCounter = new int[5];
@@ -29,40 +26,17 @@ public class FruitSi : MonoBehaviour
     // Use this for initialization
     #region Unity Callbacks
     void Start()
-    { 
+    {
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
             t.tag = "trueAnswer";
         }
-
-        for (var i = 0; i < FailCounter.Length; i++)
-        {
-            FailCounter[i] = 0;
-        }
-        
-        AudioSource = gameObject.GetComponent<AudioSource>();
-        
-        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Fruits/Identify/Muz"),
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Çilek"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Armut"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Elma"),
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Kiraz")
-        };
-        
-        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi muz göster"),
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi çilek göster"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi armut göster"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi elma göster"),
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi kiraz göster")
-        };
-        
-        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-        };
+        FailCounter[0] = 0;
+        FailCounter[1] = 0;
+        FailCounter[2] = 0;
+        FailCounter[3] = 0;
+        FailCounter[4] = 0;
 
         showFruitsImage();
     }
@@ -72,83 +46,32 @@ public class FruitSi : MonoBehaviour
     {
 
     }
-    
-    IEnumerator IdentifySound()
+    IEnumerator Help_Animation(string selected_animation)
     {
-        noAudioPlaying = false;
-        
-        AudioSource.clip = IdentificationAudioClips[PictureCounter-1];
-        AudioSource.Play();
-        yield return new WaitForSeconds(AudioSource.clip.length);
-        
-        showFruitsImage();
-        noAudioPlaying = true;
+        yield return new WaitForSeconds(4);
+
+        Point.SetActive(true);
+        Point.GetComponent<Animation>().Play(selected_animation);
+
     }
-    
-    IEnumerator CongratsSound(int i)
-    {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
-
-        noAudioPlaying = false;
-        
-        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
-        AudioSource.Play();
-        yield return new WaitForSeconds(AudioSource.clip.length);
-        
-        if (PictureCounter >= FruitSprites.Length)
-        {
-            TestPictureObjects[0].SetActive(false);
-            TestPictureObjects[1].SetActive(false);
-            questionTextObject.SetActive(false);
-
-            PictureCounter = 0;
-            SendDataToDB();
-
-            restartObject.SetActive(true);
-            testStartObject.SetActive(true);
-            goBackObject.SetActive(true);
-            yield break;
-        }
-        
-        testFruits(i);
-        noAudioPlaying = true;
-    }
-    
     #endregion
-    
     #region Function
 
     public void RestartScene()
     {
         SceneManager.LoadScene("FruitsScene");
     }
-    
-    public void PlaySound()
-    {
-        if(noAudioPlaying)
-            StartCoroutine(IdentifySound());
-    }
-    
-    public void PlayCongrats(int i)
-    {
-        if(noAudioPlaying)
-            StartCoroutine(CongratsSound(i));
-    }
-    
-    
 
     public void showFruitsImage()
     {
         if (PictureCounter < FruitSprites.Length)
         {
-            RacoonText.GetComponent<Text>().text = "Bu bir " + fruits[PictureCounter];
             ShowPictureObject.GetComponent<Image>().overrideSprite = FruitSprites[PictureCounter];
             PictureCounter++;
         }
         else
         {
             ShowPictureObject.SetActive(false);
-            Racoon.SetActive(false);
 
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
@@ -180,8 +103,6 @@ public class FruitSi : MonoBehaviour
 
         if (i == -1)
         {
-            AudioSource.clip = QuestionAudioClips[PictureCounter];
-            AudioSource.Play();
             switch (randomInteger)
             {
                 case 0:
@@ -191,6 +112,7 @@ public class FruitSi : MonoBehaviour
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation1"));
 
                     break;
                 case 1:
@@ -200,6 +122,7 @@ public class FruitSi : MonoBehaviour
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
+                    StartCoroutine(Help_Animation("AnswerAnimation2"));
                     break;
                 default:
                     Debug.Log("Unexpected random integer.");
@@ -208,15 +131,28 @@ public class FruitSi : MonoBehaviour
             return;
             
         }
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
+        if (TestPictureObjects[i].tag != "trueAnswer")
         {
             int number = PictureCounter - 1;
             FailCounter[number]++;
             return;
         }
-        
-        AudioSource.clip = QuestionAudioClips[PictureCounter];
-        AudioSource.Play();
+        Point.SetActive(false);
+
+
+        if (PictureCounter >= FruitSprites.Length)
+        {
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+
+            PictureCounter = 0;
+            SendDataToDB();
+
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);
+            goBackObject.SetActive(true);
+        }
 
         switch (randomInteger)
         {
@@ -293,3 +229,7 @@ public class FruitSi : MonoBehaviour
 
     #endregion
 }
+
+
+   
+
