@@ -11,11 +11,9 @@ public class VehicheSceneScript : MonoBehaviour {
 
     #region Variables
 
-<<<<<<< HEAD
+
     public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Rakun, SpeechBubble, informationText, AnimationBg, Animationtxt,APanel;
-=======
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Rakun,informationText ;
->>>>>>> Melih
+
     public GameObject[] TestPictureObjects;
     public GameObject[] StarObjects;
     public Sprite[] VehicheSprites;
@@ -71,19 +69,14 @@ public class VehicheSceneScript : MonoBehaviour {
         };
         
         showVehicheImage();
-<<<<<<< HEAD
-
-
-=======
->>>>>>> Melih
 
     }
 
     // Update is called once per frame
-<<<<<<< HEAD
-    void Update() {
 
-=======
+    
+
+
     void Update () {
 		
     }
@@ -129,7 +122,7 @@ public class VehicheSceneScript : MonoBehaviour {
         
         testVehiche(i);
         noAudioPlaying = true;
->>>>>>> Melih
+
     }
     #endregion
 
@@ -138,8 +131,6 @@ public class VehicheSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("VehicheScene");
     }
-<<<<<<< HEAD
-=======
     
     
     public void PlaySound()
@@ -153,7 +144,6 @@ public class VehicheSceneScript : MonoBehaviour {
         if(noAudioPlaying)
             StartCoroutine(CongratsSound(i));
     }
->>>>>>> Melih
 
     public void showVehicheImage()
     {
@@ -210,10 +200,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;
-<<<<<<< HEAD
 
-=======
->>>>>>> Melih
                     break;
                 case 1:
                     questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
@@ -222,10 +209,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
                     LoadRandomColorPictureToOtherObject(0);
                     PictureCounter++;
-<<<<<<< HEAD
 
-=======
->>>>>>> Melih
                     break;
                 default:
                     Debug.Log("Unexpected random integer.");
@@ -242,7 +226,7 @@ public class VehicheSceneScript : MonoBehaviour {
             FailCounter[number]++;
             return;
         }
-<<<<<<< HEAD
+
 
 
         if (PictureCounter >= VehicheSprites.Length)
@@ -250,59 +234,55 @@ public class VehicheSceneScript : MonoBehaviour {
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
-=======
->>>>>>> Melih
 
-        
-        
-        AudioSource.clip = QuestionAudioClips[PictureCounter];
-        AudioSource.Play();
 
-        switch (randomInteger)
-        {
-            case 0:
-                questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
-                TestPictureObjects[randomInteger].tag = "trueAnswer";
 
-                LoadRandomColorPictureToOtherObject(1);
-                PictureCounter++;
-<<<<<<< HEAD
-                APanel.SetActive(true);
-                StarObjects[0].SetActive(true);
-                StarObjects[1].SetActive(true);
-                StarObjects[2].SetActive(true);
-                StarObjects[3].SetActive(true);
-                AnimationBg.SetActive(true);
-                Animationtxt.SetActive(true);
 
-=======
->>>>>>> Melih
-                break;
-            case 1:
-                questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
-                TestPictureObjects[randomInteger].tag = "trueAnswer";
+            AudioSource.clip = QuestionAudioClips[PictureCounter];
+            AudioSource.Play();
 
-                LoadRandomColorPictureToOtherObject(0);
-                PictureCounter++;
-<<<<<<< HEAD
-                APanel.SetActive(true);
-                StarObjects[0].SetActive(true);
-                StarObjects[1].SetActive(true);
-                StarObjects[2].SetActive(true);
-                StarObjects[3].SetActive(true);
-                AnimationBg.SetActive(true);
-                Animationtxt.SetActive(true);
+            switch (randomInteger)
+            {
+                case 0:
+                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
+                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
+                    TestPictureObjects[randomInteger].tag = "trueAnswer";
 
-=======
->>>>>>> Melih
-                break;
-            default:
-                Debug.Log("Unexpected random integer.");
-                break;
+                    LoadRandomColorPictureToOtherObject(1);
+                    PictureCounter++;
+                    APanel.SetActive(true);
+                    StarObjects[0].SetActive(true);
+                    StarObjects[1].SetActive(true);
+                    StarObjects[2].SetActive(true);
+                    StarObjects[3].SetActive(true);
+                    AnimationBg.SetActive(true);
+                    Animationtxt.SetActive(true);
+
+                    break;
+                case 1:
+                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
+                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
+                    TestPictureObjects[randomInteger].tag = "trueAnswer";
+
+                    LoadRandomColorPictureToOtherObject(0);
+                    PictureCounter++;
+                    APanel.SetActive(true);
+                    StarObjects[0].SetActive(true);
+                    StarObjects[1].SetActive(true);
+                    StarObjects[2].SetActive(true);
+                    StarObjects[3].SetActive(true);
+                    AnimationBg.SetActive(true);
+                    Animationtxt.SetActive(true);
+
+                    break;
+                default:
+                    Debug.Log("Unexpected random integer.");
+                    break;
+            }
         }
     }
+        
+        
 
     private void LoadRandomColorPictureToOtherObject(int TestObjectNumber)
     {
