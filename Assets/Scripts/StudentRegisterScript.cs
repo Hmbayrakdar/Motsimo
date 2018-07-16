@@ -25,7 +25,8 @@ public class StudentRegisterScript : MonoBehaviour
     }
     public void GoBackToSelect()
     {
-	    SceneManager.LoadScene("StudentRegisterScene");
+        StudentSelect.SetActive(true);
+        StudentRegister.SetActive(false);
     }
     public void testDB()
     {

@@ -48,36 +48,7 @@ public class FruitSi : MonoBehaviour
     }
     IEnumerator Help_Animation(string selected_animation)
     {
-        noAudioPlaying = false;
-        
-        AudioSource.clip = IdentificationAudioClips[PictureCounter-1];
-        AudioSource.Play();
-        yield return new WaitForSeconds(AudioSource.clip.length);
-        
-        showFruitsImage();
-        noAudioPlaying = true;
-    }
-
-    IEnumerator CongratsSound(int i)
-    {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            yield break;
-        }
-
-        noAudioPlaying = false;
-        
-        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
-        AudioSource.Play();
-        yield return new WaitForSeconds(AudioSource.clip.length);
-        
-        if (PictureCounter >= FruitSprites.Length)
-        {
-            TestPictureObjects[0].SetActive(false);
-            TestPictureObjects[1].SetActive(false);
-            questionTextObject.SetActive(false);
+        yield return new WaitForSeconds(4);
 
         Point.SetActive(true);
         Point.GetComponent<Animation>().Play(selected_animation);
@@ -160,9 +131,28 @@ public class FruitSi : MonoBehaviour
             return;
             
         }
-        
-        AudioSource.clip = QuestionAudioClips[PictureCounter];
-        AudioSource.Play();
+        if (TestPictureObjects[i].tag != "trueAnswer")
+        {
+            int number = PictureCounter - 1;
+            FailCounter[number]++;
+            return;
+        }
+        Point.SetActive(false);
+
+
+        if (PictureCounter >= FruitSprites.Length)
+        {
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+
+            PictureCounter = 0;
+            SendDataToDB();
+
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);
+            goBackObject.SetActive(true);
+        }
 
         switch (randomInteger)
         {
@@ -215,10 +205,6 @@ public class FruitSi : MonoBehaviour
 
     public void SendDataToDB()
     {
-        for (var i = 0; i < FailCounter.Length; i++)
-        {
-            print(i + " " + FailCounter[i] );
-        }
         string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
 
         IDbConnection dbconn;
