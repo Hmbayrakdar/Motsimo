@@ -29,6 +29,7 @@
           <e p="TeacherStatisticsScript.cs" t="Include" />
           <e p="VehicheSceneScript.cs" t="Include" />
         </e>
+        <e p="StudentButtonScript.cs" t="Include" />
       </e>
       <e p="Library" t="ExcludeRecursive" />
       <e p="obj" t="ExcludeRecursive" />

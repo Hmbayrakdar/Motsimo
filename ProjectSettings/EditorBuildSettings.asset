@@ -35,4 +35,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TeacherRegisterScene.unity
     guid: 6c35813af9af78542a99d28abd6fab7f
-  m_configObjects: {}
+  - enabled: 1
+    path: Assets/Scenes/TeacherStatistics.unity
+    guid: cd777549faf061144b7488911d750eea

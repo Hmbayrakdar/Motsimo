@@ -14,26 +14,22 @@ public class MainScript : MonoBehaviour
 {
     #region Variables
     
-    public GameObject[] MainMenuElements;//Ana menü butonlarını tutmak için
-    public GameObject[] ConceptsMenuElements;//Kavram menüsündeki butonları tutmak için
-    public GameObject[] Images;//UI'daki ana renkleri tutan image objeleri için
-    public GameObject[] Test;//Test resimlerini göstermek için
-    public GameObject Point;//Yardım simgesini tutmak için
-    public GameObject testImage;//Test butonunu tutmak için
-    public GameObject SingleColor;//Belirlenen renkteki(kırmızı,mavi,sarı) resmi göstermek için
-    public GameObject questionText;//To show the question as text on UI
-    public Sprite[] RedPics;//Kırmızı resimleri tutmak için
-    public Sprite[] YellowPics;//Sarı resimleri tutmak için
-    public Sprite[] BluePics;//Mavi resimleri tutmak için
-    public Sprite[] Colors;//Ana renklerin resimlerini tutmak için
+    public GameObject[] MainMenuElements, ConceptsMenuElements,ColorsMenuElements,TestPictureObjects;
+    public GameObject testStartObject,ShowPictureObject,questionTextObject,Racoon, RacoonText;
+    public Sprite[] RedPics, YellowPics, BluePics, Colors;
+
+    
+    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    private AudioSource AudioSource;
+    private bool noAudioPlaying = true;
 
     private List<Sprite[]> ColorImageSprites = new List<Sprite[]>();
-    private int PictureCounter;//Kaçıncı resimde olduğunu belirlemek için
-    private string ChosenColor;//Hangi ana rengin seçildiğini tutmak için
-    private bool yellowFlag, redFlag, blueFlag;//Renklerin bakıldığını onaylamak için
+    private int PictureCounter, randomInt;
+    private string ChosenColor;
+    private bool yellowFlag, redFlag, blueFlag;
     private int[] FailCounter = new int[5];
     private string TestName = "Color";
-    private int randomInt;//Test için gerekli random değerleri tutmak için
+    private string[] RacoonColors = {"Kırmızı", "Mavi", "Sarı"};
     
     
     #endregion
@@ -48,12 +44,29 @@ public class MainScript : MonoBehaviour
         ColorImageSprites.Add(BluePics);
         ColorImageSprites.Add(YellowPics);
         
-        PlayerPrefs.SetInt("StuNumber", 20);
-        
         for (int i = 0; i < FailCounter.Length; i++)
         {
             FailCounter[i] = 0;
         }
+        
+        AudioSource = gameObject.GetComponent<AudioSource>();
+
+        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Identify/Kırmızı"),
+            (AudioClip)Resources.Load("Sound/Colors/Identify/Mavi"), 
+            (AudioClip)Resources.Load("Sound/Colors/Identify/Sarı")
+        };
+        
+        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Question/Hangisi kırmızı göster"),
+            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi mavi göster"), 
+            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi sarı göster")
+        };
+        
+        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
+            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
+            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
+        };
         
     }
 	
@@ -61,16 +74,58 @@ public class MainScript : MonoBehaviour
     void Update () {
 		
     }
-
-    IEnumerator Help_Animation(string selected_animation)
+    
+    IEnumerator IdentifySound()
     {
-        yield return new WaitForSeconds(4);
-        
-        Point.SetActive(true);
-        Point.GetComponent<Animation>().Play(selected_animation);
+        noAudioPlaying = false;
+        var integer =0;
 
+        switch (ChosenColor)
+        {
+                case "red":
+                    integer = 0;
+                    break;
+                case "blue" :
+                    integer = 1;
+                    break;
+                case "yellow" :
+                    integer = 2;
+                    break;
+                default:
+                    break;
+        }
+        
+        AudioSource.clip = IdentificationAudioClips[integer];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        nextColorPicture();
+        noAudioPlaying = true;
     }
     
+    IEnumerator CongratsSound(int i)
+    {
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+
+        noAudioPlaying = false;
+        
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        if (PictureCounter > 14)
+        {
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+            ConceptsMenuTransition();
+            yield break;
+        }
+        
+        ColorTestTransition(i);
+        noAudioPlaying = true;
+    }
+
     #endregion
     
     #region Menu Transitions
@@ -89,7 +144,7 @@ public class MainScript : MonoBehaviour
             t.SetActive(true);
         }
 
-        foreach (var t in Images)
+        foreach (var t in ColorsMenuElements)
         {
             t.SetActive(false);
         }
@@ -136,6 +191,7 @@ public class MainScript : MonoBehaviour
 
     public void ColorMenuTransition()
     {
+        Racoon.SetActive(false);
         //Kavram menüsündeki butonları deaktive et
         foreach (var t in ConceptsMenuElements)
         {
@@ -143,21 +199,33 @@ public class MainScript : MonoBehaviour
         }
         
         //Ana renkleri gösteren butonları aktive et ve içlerine ana renkleri koy(kırmızı,mavi,yeşil)
-        foreach (var t in Images)
+        foreach (var t in ColorsMenuElements)
         {
             t.SetActive(true);
         }
 
         for (var i = 0; i <3; i++)
         {
-            Images[i].GetComponent<Image>().overrideSprite = Colors[i];
+            ColorsMenuElements[i].GetComponent<Image>().overrideSprite = Colors[i];
         }
         
         //Bütün renklere baktıktan sonra test simgesi aktive et
         if (redFlag == true && blueFlag == true && yellowFlag == true)
         {
-            testImage.SetActive(true);
+            testStartObject.SetActive(true);
         }
+    }
+    
+    public void PlaySound()
+    {
+        if(noAudioPlaying)
+            StartCoroutine(IdentifySound());
+    }
+    
+    public void PlayCongrats(int i)
+    {
+        if(noAudioPlaying)
+            StartCoroutine(CongratsSound(i));
     }
     
   
@@ -167,37 +235,43 @@ public class MainScript : MonoBehaviour
     {
         
         //Ana renkleri tutan objeleri deaktive et
-        foreach (var t in Images)
+        foreach (var t in ColorsMenuElements)
         {
             t.SetActive(false);
         }
-        testImage.SetActive(false);
+        testStartObject.SetActive(false);
 
         //Seçilen rengi kaydet
         ChosenColor = color;
         
         //Seçilen rengin resimlerini gösterecek objeyi aktive et
-        SingleColor.SetActive(true);
+        ShowPictureObject.SetActive(true);
+        Racoon.SetActive(true);
  
         //Seçilen rengin resimleri aç ve resim sayacını 1 arttır
         if (color == "red")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = RedPics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[0];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = RedPics[PictureCounter];
             PictureCounter++;
         }
         //Seçilen rengin resimleri aç ve resim sayacını 1 arttır
         else if (color == "blue")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = BluePics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[1];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = BluePics[PictureCounter];
             PictureCounter++;
         }
         //Seçilen rengin resimleri aç ve resim sayacını 1 arttır
         else if (color == "yellow")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = YellowPics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[2];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = YellowPics[PictureCounter];
             PictureCounter++;
         }
     }
+    
+    
 
     //Seçilen renge göre resim gösteren objenin çağırdığı fonksiyon, sıradaki resmi gösteriyor ve resimler bitince,
     //Ana renk menüsüne geri dönüyor
@@ -206,14 +280,15 @@ public class MainScript : MonoBehaviour
         //Seçilen renge göre sıradaki resmi göster, sayacı 1 arttır
         if (ChosenColor == "red")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = RedPics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[0];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = RedPics[PictureCounter];
             PictureCounter++;
             //Resimler bitince sayacı sıfırla, resim göstere objeyi deaktive et, seçilen rengin bakıldığını onayla
             //Ana renkler menüsüne dön
             if (PictureCounter >= RedPics.Length)
             {
                 PictureCounter = 0;
-                SingleColor.SetActive(false);
+                ShowPictureObject.SetActive(false);
                 redFlag = true;
                 ColorMenuTransition();
             }
@@ -221,14 +296,15 @@ public class MainScript : MonoBehaviour
         //Seçilen renge göre sıradaki resmi göster, sayacı 1 arttır
         else if (ChosenColor == "blue")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = BluePics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[1];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = BluePics[PictureCounter];
             PictureCounter++;
             //Resimler bitince sayacı sıfırla, resim gösteren objeyi deaktive et, seçilen rengin bakıldığını onayla
             //Ana renkler menüsüne dön
             if (PictureCounter >= BluePics.Length)
             {
                 PictureCounter = 0;
-                SingleColor.SetActive(false);
+                ShowPictureObject.SetActive(false);
                 blueFlag = true;
                 ColorMenuTransition();
             }
@@ -236,14 +312,15 @@ public class MainScript : MonoBehaviour
         //Seçilen renge göre sıradaki resmi göster, sayacı 1 arttır
         else if (ChosenColor == "yellow")
         {
-            SingleColor.GetComponent<Image>().overrideSprite = YellowPics[PictureCounter];
+            RacoonText.GetComponent<Text>().text = "Bunun rengi " + RacoonColors[2];
+            ShowPictureObject.GetComponent<Image>().overrideSprite = YellowPics[PictureCounter];
             PictureCounter++;
             //Resimler bitince sayacı sıfırla, resim göstere objeyi deaktive et, seçilen rengin bakıldığını onayla
             //Ana renkler menüsüne dön
             if (PictureCounter >= YellowPics.Length)
             {
                 PictureCounter = 0;
-                SingleColor.SetActive(false);
+                ShowPictureObject.SetActive(false);
                 yellowFlag = true;
                 ColorMenuTransition();
             }
@@ -252,20 +329,20 @@ public class MainScript : MonoBehaviour
 
     public void ColorTestObjectsMenu()
     {
-        foreach (var t in Images)
+        foreach (var t in ColorsMenuElements)
         {
             t.SetActive(false);
         }
         
-        testImage.SetActive(false);
+        testStartObject.SetActive(false);
         
-        Test[0].SetActive(true);
-        Test[1].SetActive(true);
-        questionText.SetActive(true);
+        TestPictureObjects[0].SetActive(true);
+        TestPictureObjects[1].SetActive(true);
+        questionTextObject.SetActive(true);
         
         PictureCounter = 0;
         randomInt = UnityEngine.Random.Range(0, 2);
-        Test[randomInt].tag = "trueAnswer";
+        TestPictureObjects[randomInt].tag = "trueAnswer";
         
         ColorTestTransition(randomInt);
     }
@@ -294,7 +371,7 @@ public class MainScript : MonoBehaviour
     {
         randomInt = UnityEngine.Random.Range(1, 3);
 
-        if (Test[i].tag != "trueAnswer")
+        if (TestPictureObjects[i].tag != "trueAnswer")
         {
             var firstColorTreshold = 6;
             var secondColorTreshold = 11;
@@ -317,7 +394,6 @@ public class MainScript : MonoBehaviour
             FailCounter[number]++;
             return;
         }
-        Point.SetActive(false);
 
         if (PictureCounter == 5 || PictureCounter == 10 || PictureCounter == 15)
         {
@@ -331,72 +407,70 @@ public class MainScript : MonoBehaviour
         switch (randomInt)
         {
             case 1:
-                Test[0].tag = "trueAnswer";
-                StartCoroutine(Help_Animation("AnswerAnimation1"));
+                TestPictureObjects[0].tag = "trueAnswer";
                 if (PictureCounter <= 4)
                 {
-                    Test[0].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
+                    TestPictureObjects[0].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,0);
-                    questionText.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
                     TestName = "ColorRed";
                 }
                 
                 else if (PictureCounter <= 9)
                 {
-                    Test[0].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
+                    TestPictureObjects[0].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,1);
-                    questionText.GetComponent<Text>().text = "Hangisi mavi göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
                     TestName = "ColorBlue";
                 }
                 
                 else if (PictureCounter <= 14)
                 {
-                    Test[0].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
+                    TestPictureObjects[0].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,2);
-                    questionText.GetComponent<Text>().text = "Hangisi sarı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
                     TestName = "ColorYellow";
                 }
                 else
                 {
-                    Test[0].SetActive(false);
-                    Test[1].SetActive(false);
-                    questionText.SetActive(false);
+                    TestPictureObjects[0].SetActive(false);
+                    TestPictureObjects[1].SetActive(false);
+                    questionTextObject.SetActive(false);
                     ConceptsMenuTransition();
                 }
 
                 break;
             case 2:
-                Test[1].tag = "trueAnswer";
-                StartCoroutine(Help_Animation("AnswerAnimation2"));
+                TestPictureObjects[1].tag = "trueAnswer";
                 if (PictureCounter <= 4)
                 {
-                    Test[1].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
+                    TestPictureObjects[1].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,0);
-                    questionText.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
                 }
                 else if (PictureCounter <= 9)
                 {
-                    Test[1].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
+                    TestPictureObjects[1].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,1);
-                    questionText.GetComponent<Text>().text = "Hangisi mavi göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
                 }
                 else if (PictureCounter <= 14)
                 {
-                    Test[1].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
+                    TestPictureObjects[1].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,2);
-                    questionText.GetComponent<Text>().text = "Hangisi sarı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
                 }
                 else
                 {
-                    Test[0].SetActive(false);
-                    Test[1].SetActive(false);
-                    questionText.SetActive(false);
+                    TestPictureObjects[0].SetActive(false);
+                    TestPictureObjects[1].SetActive(false);
+                    questionTextObject.SetActive(false);
                     ConceptsMenuTransition();
                 }
 
@@ -414,29 +488,29 @@ public class MainScript : MonoBehaviour
         switch (ChosenColor)
         {
             case 0:
-                Test[TestObjectNumber].GetComponent<Image>().sprite =
+                TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite =
                     ColorImageSprites[UnityEngine.Random.Range(1, 3)][UnityEngine.Random.Range(0, 5)];
                 break;
             case 1:
                 if (0 == UnityEngine.Random.Range(0, 2))
                 {
-                    Test[TestObjectNumber].GetComponent<Image>().sprite =
+                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite =
                         ColorImageSprites[0][UnityEngine.Random.Range(0, 5)];
                 }
                 else
                 {
-                    Test[TestObjectNumber].GetComponent<Image>().sprite =
+                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite =
                         ColorImageSprites[2][UnityEngine.Random.Range(0, 5)];
                 }
 
                 break;
             case 2:
-                Test[TestObjectNumber].GetComponent<Image>().sprite =
+                TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite =
                     ColorImageSprites[UnityEngine.Random.Range(0, 2)][UnityEngine.Random.Range(0, 5)];
                 break;
         }
 
-        Test[TestObjectNumber].tag = "falseAnswer";
+        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
     }
     
     public void SendDataToDB()

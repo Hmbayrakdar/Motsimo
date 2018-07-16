@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mono.Data.Sqlite; using System.Data;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StatisticsScripts : MonoBehaviour {
@@ -37,13 +38,18 @@ public class StatisticsScripts : MonoBehaviour {
 	IEnumerator Example()
 	{
 		
-		yield return new WaitForSeconds(1);
+		yield return new WaitForSeconds(0.25f);
 		GameObject.Find("HorizontalScrollBar").GetComponent<Scrollbar>().value = 0;
 	}
 	
 	#endregion
 	
 	#region Functions
+
+	public void goBackToStudentSelectScene()
+	{
+		SceneManager.LoadScene("StudentRegisterScene");
+	}
 
     private void getData()
     {

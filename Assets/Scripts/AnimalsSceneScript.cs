@@ -11,9 +11,13 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     #region Variables
 	
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject, Point;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
     public GameObject[] TestPictureObjects;
     public Sprite[] AnimalSprites;
+    
+    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    private AudioSource AudioSource;
+    private bool noAudioPlaying = true;
     
 
     private int PictureCounter;
@@ -26,8 +30,8 @@ public class AnimalsSceneScript : MonoBehaviour {
     #region Unity Callbacks
 	
     // Use this for initialization
-    void Start () {
-		
+    void Start ()
+    {
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
@@ -40,25 +44,80 @@ public class AnimalsSceneScript : MonoBehaviour {
             FailCounter[i] = 0;
         }
         
+        AudioSource = gameObject.GetComponent<AudioSource>();
+
+        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Animals/Identify/Balık"),
+            (AudioClip)Resources.Load("Sound/Animals/Identify/İnek"), 
+            (AudioClip)Resources.Load("Sound/Animals/Identify/Kedi"), 
+            (AudioClip)Resources.Load("Sound/Animals/Identify/Köpek"),
+            (AudioClip)Resources.Load("Sound/Animals/Identify/Tavşan")
+        };
         
+        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Animals/Question/Hangisi balık göster"),
+            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi inek göster"), 
+            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi kedi göster"), 
+            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi köpek göster"),
+            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi tavşan göster")
+        };
         
+        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
+            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
+            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
+            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
+        };
+
+
         showAnimalImage();
+        
     }
 	
     // Update is called once per frame
     void Update () {
 		
     }
-    
-    IEnumerator Help_Animation(string selected_animation)
-    {
-        yield return new WaitForSeconds(4);
-        
-        Point.SetActive(true);
-        Point.GetComponent<Animation>().Play(selected_animation);
 
+    IEnumerator IdentifySound()
+    {
+        noAudioPlaying = false;
+        
+        AudioSource.clip = IdentificationAudioClips[PictureCounter-1];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        showAnimalImage();
+        noAudioPlaying = true;
     }
-	
+    
+    IEnumerator CongratsSound(int i)
+    {
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+
+        noAudioPlaying = false;
+        
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        if (PictureCounter >= AnimalSprites.Length)
+        {
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+
+            PictureCounter = 0;
+            SendDataToDB();
+
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);
+            goBackObject.SetActive(true);
+            yield break;
+        }
+        
+        testAnimals(i);
+        noAudioPlaying = true;
+    }
+    
     #endregion
     
     #region Function
@@ -67,21 +126,36 @@ public class AnimalsSceneScript : MonoBehaviour {
     {
         SceneManager.LoadScene("AnimalsScene");
     }
+
+    public void PlaySound()
+    {
+        if(noAudioPlaying)
+            StartCoroutine(IdentifySound());
+    }
+    
+    public void PlayCongrats(int i)
+    {
+        if(noAudioPlaying)
+            StartCoroutine(CongratsSound(i));
+    }
 	
     public void showAnimalImage()
     {
         if (PictureCounter < AnimalSprites.Length)
         {
+            RacoonText.GetComponent<Text>().text = "Bu bir " + animals[PictureCounter];
             ShowPictureObject.GetComponent<Image>().overrideSprite = AnimalSprites[PictureCounter];
             PictureCounter++;
         }
         else
         {
             ShowPictureObject.SetActive(false);
+            Racoon.SetActive(false);
 			
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
+            
             
             
         }
@@ -110,6 +184,8 @@ public class AnimalsSceneScript : MonoBehaviour {
         
         if (i == -1)
         {
+            AudioSource.clip = QuestionAudioClips[PictureCounter];
+            AudioSource.Play();
             switch (randomInteger)
             {
                 case 0:
@@ -119,9 +195,7 @@ public class AnimalsSceneScript : MonoBehaviour {
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                     LoadRandomColorPictureToOtherObject(1);
-                    PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation1"));
-                    
+                    PictureCounter++;                   
                     break;
                 case 1:
                     questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
@@ -129,9 +203,7 @@ public class AnimalsSceneScript : MonoBehaviour {
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                     LoadRandomColorPictureToOtherObject(0);
-                    PictureCounter++;
-                    StartCoroutine(Help_Animation("AnswerAnimation2"));
-                    
+                    PictureCounter++; 
                     break;
                 default:
                     Debug.Log("Unexpected random integer.");
@@ -141,29 +213,15 @@ public class AnimalsSceneScript : MonoBehaviour {
             return;
         }
 
-        if (TestPictureObjects[i].tag != "trueAnswer")
+        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             int number = PictureCounter - 1;
             FailCounter[number]++;
             return;
         }
-        Point.SetActive(false);
-        
-        
-        if (PictureCounter >= AnimalSprites.Length)
-        {
-            TestPictureObjects[0].SetActive(false);
-            TestPictureObjects[1].SetActive(false);
-            questionTextObject.SetActive(false);
 
-            PictureCounter = 0;
-            SendDataToDB();
-            
-            restartObject.SetActive(true);
-            testStartObject.SetActive(true);   
-            goBackObject.SetActive(true);
-            return;
-        }
+        AudioSource.clip = QuestionAudioClips[PictureCounter];
+        AudioSource.Play();
         
         switch (randomInteger)
         {
@@ -173,9 +231,7 @@ public class AnimalsSceneScript : MonoBehaviour {
                 TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                 LoadRandomColorPictureToOtherObject(1);
-                PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation1"));
-                
+                PictureCounter++;              
                 break;
             case 1:
                 questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
@@ -184,8 +240,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
                 LoadRandomColorPictureToOtherObject(0);
                 PictureCounter++;
-                StartCoroutine(Help_Animation("AnswerAnimation2"));
-                
+
                 break;
             default:
                 Debug.Log("Unexpected random integer.");
@@ -193,7 +248,7 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
     }
     
-    private void LoadRandomColorPictureToOtherObject(int TestObjectNumber)
+    private void LoadRandomColorPictureToOtherObject(int testObjectNumber)
     {
         var randomInteger = UnityEngine.Random.Range(0, AnimalSprites.Length);
         
@@ -202,8 +257,8 @@ public class AnimalsSceneScript : MonoBehaviour {
             randomInteger = UnityEngine.Random.Range(0, AnimalSprites.Length);
         }
         
-        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = AnimalSprites[randomInteger];
-        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+        TestPictureObjects[testObjectNumber].GetComponent<Image>().sprite = AnimalSprites[randomInteger];
+        TestPictureObjects[testObjectNumber].tag = "falseAnswer";
         
     }
     
