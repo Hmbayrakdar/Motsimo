@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mono.Data.Sqlite; using System.Data;
+using System.IO;
 
 public class SizeDifferenceScript : MonoBehaviour {
 	
@@ -25,6 +26,7 @@ public class SizeDifferenceScript : MonoBehaviour {
     private int[] FailCounter = new int[5];
     private string TestName = "SizeDifference";
     private bool SmallPictureFlag, BigPictureFlag, isTesting;
+	private string conn;
 	
     #endregion
 	
@@ -107,7 +109,10 @@ public class SizeDifferenceScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+			var number = PictureCounter - 1;
+            FailCounter[number]++;
+		}
 
         noAudioPlaying = false;
         
@@ -237,13 +242,6 @@ public class SizeDifferenceScript : MonoBehaviour {
             return;
         }
 
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-        {
-            var number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
-        
         switch (randomInteger)
         {
             case 0:
@@ -314,10 +312,28 @@ public class SizeDifferenceScript : MonoBehaviour {
     
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();

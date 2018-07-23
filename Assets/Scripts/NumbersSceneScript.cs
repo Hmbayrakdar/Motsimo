@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-//using NUnit.Framework.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement; 
 using UnityEngine.UI;
 using Mono.Data.Sqlite; using System.Data;
+using System.IO;
 
 public class NumbersSceneScript : MonoBehaviour {
 
@@ -23,6 +23,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	private int[] FailCounter = new int[9];
 	private string TestName = "Numbers";
 	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
+	private string conn;
 	
     #endregion
 	
@@ -96,7 +97,11 @@ public class NumbersSceneScript : MonoBehaviour {
     
 	IEnumerator CongratsSound(int i)
 	{
-		if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+			var number = PictureCounter - 1;
+			FailCounter[number]++;
+			yield break;
+		}
 
 		noAudioPlaying = false;
         
@@ -183,13 +188,6 @@ public class NumbersSceneScript : MonoBehaviour {
 		goBackObject.SetActive(false);
 		questionTextObject.SetActive(true);
 		
-		if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-		{
-			var number = PictureCounter - 1;
-			FailCounter[number]++;
-			return;
-		}
-		
 		AudioSource.clip = QuestionAudioClips[PictureCounter];
 		AudioSource.Play();
 
@@ -230,10 +228,29 @@ public class NumbersSceneScript : MonoBehaviour {
 	
 	public void SendDataToDB()
 	{
-		string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
+		//Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
 		IDbConnection dbconn;
-		dbconn = (IDbConnection) new SqliteConnection(conn);
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
 		dbconn.Open(); //Open connection to the database.
 
 		IDbCommand dbcmd = dbconn.CreateCommand();

@@ -9,6 +9,7 @@ using Image = UnityEngine.UI.Image;
 using Random = System.Random;
 using Mono.Data.Sqlite; using System.Data;
 using System.Runtime.InteropServices;
+using System.IO;
 
 public class MainScript : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class MainScript : MonoBehaviour
 
     private List<Sprite[]> ColorImageSprites = new List<Sprite[]>();
     private int PictureCounter, randomInt;
-    private string ChosenColor;
+    private string ChosenColor,conn;
     private bool yellowFlag, redFlag, blueFlag;
     private int[] FailCounter = new int[5];
     private string TestName = "Color";
@@ -67,7 +68,6 @@ public class MainScript : MonoBehaviour
             (AudioClip)Resources.Load("Sound/Congrats/Süper"),
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
-        
     }
 	
     // Update is called once per frame
@@ -105,7 +105,28 @@ public class MainScript : MonoBehaviour
     
     IEnumerator CongratsSound(int i)
     {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+			var firstColorTreshold = 6;
+            var secondColorTreshold = 11;
+            int number = 0;
+            if (PictureCounter <= 5)
+            {
+                number = PictureCounter - 1;
+            }
+            else if (PictureCounter <= 10)
+            {
+                number = PictureCounter - firstColorTreshold;
+            }
+            else if (PictureCounter <= 15)
+            {
+                number = PictureCounter - secondColorTreshold;
+            }
+            
+            Debug.Log(number + " PictureCounter: " + PictureCounter);
+            
+            FailCounter[number]++;
+            yield break;
+		}
 
         noAudioPlaying = false;
         
@@ -371,29 +392,7 @@ public class MainScript : MonoBehaviour
     {
         randomInt = UnityEngine.Random.Range(1, 3);
 
-        if (TestPictureObjects[i].tag != "trueAnswer")
-        {
-            var firstColorTreshold = 6;
-            var secondColorTreshold = 11;
-            int number = 0;
-            if (PictureCounter <= 5)
-            {
-                number = PictureCounter - 1;
-            }
-            else if (PictureCounter <= 10)
-            {
-                number = PictureCounter - firstColorTreshold;
-            }
-            else if (PictureCounter <= 15)
-            {
-                number = PictureCounter - secondColorTreshold;
-            }
-            
-            Debug.Log(number + " PictureCounter: " + PictureCounter);
-            
-            FailCounter[number]++;
-            return;
-        }
+        
 
         if (PictureCounter == 5 || PictureCounter == 10 || PictureCounter == 15)
         {
@@ -414,6 +413,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,0);
                     questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+					AudioSource.clip = QuestionAudioClips[0];
+        			AudioSource.Play();
                     TestName = "ColorRed";
                 }
                 
@@ -423,6 +424,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,1);
                     questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
+					AudioSource.clip = QuestionAudioClips[1];
+        			AudioSource.Play();
                     TestName = "ColorBlue";
                 }
                 
@@ -432,6 +435,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,2);
                     questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
+					AudioSource.clip = QuestionAudioClips[2];
+        			AudioSource.Play();
                     TestName = "ColorYellow";
                 }
                 else
@@ -451,6 +456,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,0);
                     questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+					AudioSource.clip = QuestionAudioClips[0];
+        			AudioSource.Play();
                 }
                 else if (PictureCounter <= 9)
                 {
@@ -458,6 +465,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,1);
                     questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
+					AudioSource.clip = QuestionAudioClips[1];
+        			AudioSource.Play();
                 }
                 else if (PictureCounter <= 14)
                 {
@@ -465,6 +474,8 @@ public class MainScript : MonoBehaviour
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,2);
                     questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
+					AudioSource.clip = QuestionAudioClips[2];
+        			AudioSource.Play();
                 }
                 else
                 {
@@ -515,10 +526,29 @@ public class MainScript : MonoBehaviour
     
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();

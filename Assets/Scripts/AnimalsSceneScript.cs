@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -24,6 +25,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     private int[] FailCounter = new int[5];
     private string TestName = "Animals";
     private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
+	private string conn;
 	
     #endregion
 	
@@ -91,16 +93,25 @@ public class AnimalsSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
-
+		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+			int number = PictureCounter - 1;
+            FailCounter[number]++;
+			yield break;
+		}
+        
+        
         noAudioPlaying = false;
         
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
-        
+        if (PictureCounter < AnimalSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
         if (PictureCounter >= AnimalSprites.Length)
         {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
@@ -113,7 +124,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             goBackObject.SetActive(true);
             yield break;
         }
-        
+
         testAnimals(i);
         noAudioPlaying = true;
     }
@@ -143,6 +154,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     {
         if (PictureCounter < AnimalSprites.Length)
         {
+            
             RacoonText.GetComponent<Text>().text = "Bu bir " + animals[PictureCounter];
             ShowPictureObject.GetComponent<Image>().overrideSprite = AnimalSprites[PictureCounter];
             PictureCounter++;
@@ -155,9 +167,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
-            
-            
-            
+
         }
     }
 
@@ -213,13 +223,6 @@ public class AnimalsSceneScript : MonoBehaviour {
             return;
         }
 
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
-
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
         
@@ -270,10 +273,29 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();

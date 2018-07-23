@@ -132,8 +132,8 @@ MonoBehaviour:
     m_FadeDuration: 0.5
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 21300000, guid: 325ddf3bfc289034da2a3e1006a103cd, type: 3}
+    m_DisabledSprite: {fileID: 21300000, guid: 164b865c8da8bb1459445e45d9e70722, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -144,12 +144,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114179665631385588}
-        m_MethodName: ChooseStudent
-        m_Mode: 1
+      - m_Target: {fileID: 114361616805783564, guid: 69b65355656477e418df50f8dcb0e55d,
+          type: 2}
+        m_MethodName: CheckStuNoButtons
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1469238998095582}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

@@ -14,6 +14,7 @@ public class TeacherInputScript : MonoBehaviour
 
     public GameObject email;
     public GameObject password;
+	public GameObject warning;
 
     private string Email;
     private string Password;
@@ -24,44 +25,37 @@ public class TeacherInputScript : MonoBehaviour
     private string conn;
 
 
+
     public void Input()
     {
         //Path to database.
-        
-
         if (Application.platform == RuntimePlatform.Android)
         {
-            string dbPath = System.IO.Path.Combine (Application.persistentDataPath, "Database.db");
-            var dbTemplatePath = System.IO.Path.Combine(Application.streamingAssetsPath, "Database.db");
- 
-            if (!System.IO.File.Exists(dbPath)) {
-                
-                // Must use WWW for streaming asset
-                WWW reader1 = new WWW(dbTemplatePath);
-                while ( !reader1.isDone) {}
-                System.IO.File.WriteAllBytes(dbPath, reader1.bytes);
-                     
-            }
+			conn = Application.persistentDataPath + "/Database.db";
 
-            conn = dbPath;
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
 
         }
         else
         {
             // WINDOWS
-            conn = "URI=file:" + Application.dataPath + "/Database/Database.db";
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
 
-
+		try{
         IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
 
-
         string sqlQuery = "SELECT Email, Password FROM Teacher";
-
 
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
@@ -70,14 +64,21 @@ public class TeacherInputScript : MonoBehaviour
         {
             Email1 = reader.GetString(0);
             Password1 = reader.GetString(1);
-        }
+			}
 
-        reader.Close();
+			reader.Close();
         reader = null;
         dbcmd.Dispose();
         dbcmd = null;
         dbconn.Close();
         dbconn = null;
+		}catch(Exception e) {
+			warning.SetActive(true);
+			warning.transform.GetChild(0).GetComponent<Text>().text = e.Source + e.Message;
+			return;
+        }
+
+        
 
 
 
@@ -86,12 +87,14 @@ public class TeacherInputScript : MonoBehaviour
 
         if (Email == Email1 && Password == Password1)
         {
-            print("Login sucsessful");
+            print("Login successful");
             PlayerPrefs.SetString("TeacherEmail", Email);
             SceneManager.LoadScene("StudentRegisterScene");
         }
         else
         {
+			warning.SetActive(true);
+			warning.transform.GetChild(0).GetComponent<Text>().text = "Giriş Başarısız";
             print("Giriş Başarısız");
         }
 
@@ -101,4 +104,9 @@ public class TeacherInputScript : MonoBehaviour
     {
         SceneManager.LoadScene("TeacherRegisterScene");
     }
+
+	public void goBack()
+	{
+		SceneManager.LoadScene("LoginScene");
+	}
 }

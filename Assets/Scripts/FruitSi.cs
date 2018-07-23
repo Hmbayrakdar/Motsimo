@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mono.Data.Sqlite;
 using System.Data;
-
+using System.IO;
 
 public class FruitSi : MonoBehaviour
 {
@@ -24,6 +24,7 @@ public class FruitSi : MonoBehaviour
     private int[] FailCounter = new int[5];
     private string TestName = "Fruits";
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
+	private string conn;
 
     #endregion
     // Use this for initialization
@@ -272,10 +273,29 @@ public class FruitSi : MonoBehaviour
         {
             print(i + " " + FailCounter[i] );
         }
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
 
-        IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection(conn);
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();

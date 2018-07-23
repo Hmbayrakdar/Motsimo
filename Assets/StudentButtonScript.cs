@@ -8,7 +8,6 @@ public class StudentButtonScript : MonoBehaviour {
 
 	public void ChooseStudent()
 	{
-		PlayerPrefs.SetInt("StuNumber", Int32.Parse(gameObject.transform.GetChild(0).GetComponent<Text>().text));
-		print("Chosen stuNo: " + PlayerPrefs.GetInt("StuNumber"));
+		
 	}
 }
