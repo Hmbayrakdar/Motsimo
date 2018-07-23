@@ -73,6 +73,14 @@ public class FruitSi : MonoBehaviour
     {
 
     }
+
+    IEnumerator Identifnd()
+    {
+        
+        yield return new WaitForSeconds(5);
+        
+        print("hello");
+    }
     
     IEnumerator IdentifySound()
     {
@@ -95,14 +103,22 @@ public class FruitSi : MonoBehaviour
             yield break;
         }
 
+        if (PictureCounter < FruitSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+        
         noAudioPlaying = false;
         
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         
+        
         if (PictureCounter >= FruitSprites.Length)
         {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
@@ -113,6 +129,7 @@ public class FruitSi : MonoBehaviour
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
+            noAudioPlaying = true;
             yield break;
         }
         

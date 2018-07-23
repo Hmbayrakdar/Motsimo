@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Mono.Data.Sqlite;
 using System.Data;
 using System;
+using System.IO;
 
 public class VehicheSceneScript : MonoBehaviour {
 
@@ -24,6 +25,7 @@ public class VehicheSceneScript : MonoBehaviour {
     private string TestName = "Vehiches";
     private string[] Vehiches = { "Tır", "Uçak", "Otobüs", "Araba", "Gemi" };
     private string[] CVehiches = { "TIR", "UÇAK", "OTOBÜS", "ARABA", "GEMİ" };
+    private string conn;
     #endregion
 
     #region Unity Callbacks
@@ -87,9 +89,19 @@ public class VehicheSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (!TestPictureObjects[i].CompareTag("trueAnswer")) yield break;
+        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
+        {
+            int number = PictureCounter - 1;
+            FailCounter[number]++;
+            yield break;
+        }
         
-        
+        if (PictureCounter < VehicheSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
 
         noAudioPlaying = false;
         
@@ -99,6 +111,7 @@ public class VehicheSceneScript : MonoBehaviour {
         
         if (PictureCounter >= VehicheSprites.Length)
         {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
@@ -109,6 +122,7 @@ public class VehicheSceneScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
+            noAudioPlaying = true;
             yield break;
         }
         
@@ -207,16 +221,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
             return;
         }
-
-        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
-
-        
-        
+    
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
 
@@ -259,10 +264,32 @@ public class VehicheSceneScript : MonoBehaviour {
     }
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+        for (var i = 0; i < FailCounter.Length; i++)
+        {
+            print(i + " " + FailCounter[i] );
+        }
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            // WINDOWS
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
 
         IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection(conn);
+        dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();

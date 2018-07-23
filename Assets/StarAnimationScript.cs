@@ -5,14 +5,15 @@ using UnityEngine;
 public class StarAnimationScript : MonoBehaviour
 {
 
-    public GameObject StarEndAnmiaton, APanel;
+    public GameObject StarEndAnimation, APanel;
 
     private int starCounter = 0;
     private GameObject[] allChildren;
 
     public void StartAnimation()
     {
-        StarEndAnmiaton.SetActive(true);
+        StarEndAnimation.SetActive(true);
+        StarEndAnimation.GetComponent<Animator>().Play("StarDiving",-1,0f);
     }
 
     public void EndAnimation()
@@ -27,6 +28,7 @@ public class StarAnimationScript : MonoBehaviour
         if (starCounter >= 4)
         {
             APanel.SetActive(false);
+            APanel.transform.GetChild(1).gameObject.SetActive(false);
             starCounter = 0;
         }
             
@@ -35,6 +37,7 @@ public class StarAnimationScript : MonoBehaviour
     public void StarFunction()
     {
         APanel.SetActive(true);
+        APanel.transform.GetChild(1).gameObject.SetActive(true);
         ActivatePanelsChildren();
     }
 

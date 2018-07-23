@@ -79,8 +79,9 @@ public class NumbersSceneScript : MonoBehaviour {
     }
 	
     // Update is called once per frame
-    void Update () {
-		
+    void Update ()
+    {
+	    
     }
 	
 	IEnumerator IdentifySound()
@@ -102,15 +103,25 @@ public class NumbersSceneScript : MonoBehaviour {
 			FailCounter[number]++;
 			yield break;
 		}
+		
+		if (PictureCounter < 9)
+		{
+			gameObject.GetComponent<StarAnimationScript>().StarFunction();
+		}
 
+		yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+		
 		noAudioPlaying = false;
         
 		AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
 		AudioSource.Play();
+		
 		yield return new WaitForSeconds(AudioSource.clip.length);
-        
+		
 		if (PictureCounter >= 9)
 		{
+			gameObject.GetComponent<StarAnimationScript>().StartAnimation();
+			
 			questionTextObject.SetActive(false);
 			foreach(var t in TestPictureObjects)
 				t.SetActive(false);
@@ -120,6 +131,7 @@ public class NumbersSceneScript : MonoBehaviour {
 			testStartObject.SetActive(true);
 			goBackObject.SetActive(true);
 			questionTextObject.SetActive(false);
+			noAudioPlaying = true;
 			yield break;
 		}
         

@@ -40,7 +40,6 @@ public class AnimalsSceneScript : MonoBehaviour {
             t.tag = "trueAnswer";
         }
 
-
         for (int i = 0; i < FailCounter.Length; i++)
         {
             FailCounter[i] = 0;
@@ -75,8 +74,9 @@ public class AnimalsSceneScript : MonoBehaviour {
     }
 	
     // Update is called once per frame
-    void Update () {
-		
+    void Update ()
+    {
+        
     }
 
     IEnumerator IdentifySound()
@@ -102,13 +102,19 @@ public class AnimalsSceneScript : MonoBehaviour {
         
         noAudioPlaying = false;
         
-        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
-        AudioSource.Play();
-        yield return new WaitForSeconds(AudioSource.clip.length);
         if (PictureCounter < AnimalSprites.Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
+        
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
+        
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        
         if (PictureCounter >= AnimalSprites.Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StartAnimation();
@@ -122,6 +128,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
+            noAudioPlaying = true;
             yield break;
         }
 

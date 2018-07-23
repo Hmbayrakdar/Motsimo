@@ -127,6 +127,13 @@ public class MainScript : MonoBehaviour
             FailCounter[number]++;
             yield break;
 		}
+        
+        if (PictureCounter <= 14)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
 
         noAudioPlaying = false;
         
@@ -136,10 +143,13 @@ public class MainScript : MonoBehaviour
         
         if (PictureCounter > 14)
         {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
             ConceptsMenuTransition();
+            noAudioPlaying = true;
+            PictureCounter = 0;
             yield break;
         }
         

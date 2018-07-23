@@ -112,7 +112,15 @@ public class SizeDifferenceScript : MonoBehaviour {
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			var number = PictureCounter - 1;
             FailCounter[number]++;
+		    yield break;
 		}
+        
+        if (PictureCounter < SizeDifferenceSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
 
         noAudioPlaying = false;
         
@@ -122,6 +130,8 @@ public class SizeDifferenceScript : MonoBehaviour {
         
         if (PictureCounter >= SizeDifferenceSprites.Length)
         {
+            isTesting = false;
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
@@ -133,6 +143,7 @@ public class SizeDifferenceScript : MonoBehaviour {
             restartObject.SetActive(true);
             testStartObject.SetActive(true);   
             goBackObject.SetActive(true);
+            noAudioPlaying = true;
             yield break;
         }
 
