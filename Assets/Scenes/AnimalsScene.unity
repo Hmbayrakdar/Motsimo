@@ -673,7 +673,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1408704289844320, guid: c798f98a893593644b7b3f2a926c4673, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1854614209927356, guid: c798f98a893593644b7b3f2a926c4673, type: 2}
       propertyPath: m_IsActive
@@ -1218,18 +1218,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StarEndAnmiaton: {fileID: 1719901744}
-  informationText: {fileID: 0}
-  APanel: {fileID: 0}
-  StarObjects:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  APanel: {fileID: 1197556685}
 --- !u!224 &1137778220 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224828132382584530, guid: 8caaf867e0cd49440a101c5b34276fea,
     type: 2}
   m_PrefabInternal: {fileID: 437100258}
+--- !u!1 &1197556685 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1408704289844320, guid: c798f98a893593644b7b3f2a926c4673,
+    type: 2}
+  m_PrefabInternal: {fileID: 989556678}
 --- !u!1 &1242152277
 GameObject:
   m_ObjectHideFlags: 0
@@ -2192,9 +2191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StarEndAnmiaton: {fileID: 0}
-  informationText: {fileID: 0}
   APanel: {fileID: 0}
-  StarObjects: []
 --- !u!1 &1751420020
 GameObject:
   m_ObjectHideFlags: 0
