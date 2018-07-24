@@ -6,6 +6,8 @@ TagManager:
   tags:
   - trueAnswer
   - falseAnswer
+  - Pressed
+  - Unpressed
   layers:
   - Default
   - TransparentFX

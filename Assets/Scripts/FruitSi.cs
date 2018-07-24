@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mono.Data.Sqlite;
 using System.Data;
-using System;
+using System.IO;
 
 public class FruitSi : MonoBehaviour
 {
@@ -21,6 +21,7 @@ public class FruitSi : MonoBehaviour
     private int[] FailCounter = new int[5];
     private string TestName = "Fruits";
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
+	private string conn;
 
     #endregion
     // Use this for initialization
@@ -46,13 +47,68 @@ public class FruitSi : MonoBehaviour
     {
 
     }
-    IEnumerator Help_Animation(string selected_animation)
+
+    IEnumerator Identifnd()
     {
-        yield return new WaitForSeconds(4);
+
+        yield return new WaitForSeconds(5);
+
+        print("hello");
+    }
+
+    IEnumerator IdentifySound()
+    {
+        noAudioPlaying = false;
+
+        AudioSource.clip = IdentificationAudioClips[PictureCounter-1];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+
+        showFruitsImage();
+        noAudioPlaying = true;
+    }
+
+    IEnumerator CongratsSound(int i)
+    {
+        if (!TestPictureObjects[i].CompareTag("trueAnswer"))
+        {
+            int number = PictureCounter - 1;
+            FailCounter[number]++;
+            yield break;
+        }
+
+        if (PictureCounter < FruitSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
+        noAudioPlaying = false;
+
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+
+
+        if (PictureCounter >= FruitSprites.Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
 
         Point.SetActive(true);
         Point.GetComponent<Animation>().Play(selected_animation);
 
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);
+            goBackObject.SetActive(true);
+            noAudioPlaying = true;
+            yield break;
+        }
+
+        testFruits(i);
+        noAudioPlaying = true;
     }
     #endregion
     #region Function
@@ -129,30 +185,11 @@ public class FruitSi : MonoBehaviour
                     break;
             }
             return;
-            
+
         }
-        if (TestPictureObjects[i].tag != "trueAnswer")
-        {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
-            return;
-        }
-        Point.SetActive(false);
 
-
-        if (PictureCounter >= FruitSprites.Length)
-        {
-            TestPictureObjects[0].SetActive(false);
-            TestPictureObjects[1].SetActive(false);
-            questionTextObject.SetActive(false);
-
-            PictureCounter = 0;
-            SendDataToDB();
-
-            restartObject.SetActive(true);
-            testStartObject.SetActive(true);
-            goBackObject.SetActive(true);
-        }
+        AudioSource.clip = QuestionAudioClips[PictureCounter];
+        AudioSource.Play();
 
         switch (randomInteger)
         {
@@ -205,10 +242,33 @@ public class FruitSi : MonoBehaviour
 
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
+        for (var i = 0; i < FailCounter.Length; i++)
+        {
+            print(i + " " + FailCounter[i] );
+        }
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
 
-        IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection(conn);
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -229,7 +289,3 @@ public class FruitSi : MonoBehaviour
 
     #endregion
 }
-
-
-   
-

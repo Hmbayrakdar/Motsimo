@@ -9,8 +9,8 @@ public class LogInScript : MonoBehaviour {
     {
         SceneManager.LoadScene("TeacherInputScene");
     }
-    public void individualEntry()
+    public void personalEntry()
     {
-
+        SceneManager.LoadScene("MainScene");
     }
 }

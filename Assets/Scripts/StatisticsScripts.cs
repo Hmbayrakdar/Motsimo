@@ -4,148 +4,172 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mono.Data.Sqlite; using System.Data;
 using UnityEngine.UI;
+using System.IO;
 
 public class StatisticsScripts : MonoBehaviour {
     #region Variables
 
-	private GameObject GridWithRows;
-	private GameObject StartingRow;
+    private GameObject GridWithRows;
+    private GameObject StartingRow;
 
     private string[] Testnames;
     private int[] StudentNumbers;
-	private List<int[]> Questions = new List<int[]>();
-	private int numberOfResults = 0;
-		
+    private List<int[]> Questions = new List<int[]>();
+    private int numberOfResults = 0;
+    private string conn;
+
     #endregion
 
-	#region Unity Callbacks
-	
+    #region Unity Callbacks
+
     // Use this for initialization
     void Start ()
     {
-	    GridWithRows = GameObject.Find("GridWithRows");
-	    StartingRow = GameObject.Find("StartingRow");
-	    getData();
-	    Display();
+        GridWithRows = GameObject.Find("GridWithRows");
+        StartingRow = GameObject.Find("StartingRow");
+        getData();
+        Display();
     }
-	
+
     // Update is called once per frame
     void Update () {
-		
+
     }
-	
-	IEnumerator Example()
-	{
-		
-		yield return new WaitForSeconds(1);
-		GameObject.Find("HorizontalScrollBar").GetComponent<Scrollbar>().value = 0;
-	}
-	
-	#endregion
-	
-	#region Functions
+
+    IEnumerator Example()
+    {
+
+        yield return new WaitForSeconds(0.25f);
+        GameObject.Find("HorizontalScrollBar").GetComponent<Scrollbar>().value = 0;
+    }
+
+    #endregion
+
+    #region Functions
+
+    public void goBackToStudentSelectScene()
+    {
+        SceneManager.LoadScene("StudentRegisterScene");
+    }
 
     private void getData()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            // WINDOWS
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
         IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
         dbconn.Open(); //Open connection to the database.
-	    IDbCommand dbcmd = dbconn.CreateCommand();
-	    IDbCommand dbcmd2 = dbconn.CreateCommand();
+        IDbCommand dbcmd = dbconn.CreateCommand();
+        IDbCommand dbcmd2 = dbconn.CreateCommand();
 
-	    string sqlQuery = "SELECT COUNT(*) FROM Test";
-	    
-	    dbcmd.CommandText = sqlQuery;
-	    IDataReader reader = dbcmd.ExecuteReader();
+        string sqlQuery = "SELECT COUNT(*) FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"')";
 
-	    reader.Read();
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
 
-	    numberOfResults = reader.GetInt32(0);
+        reader.Read();
 
-	    Testnames = new string[numberOfResults];
-	    StudentNumbers = new int[numberOfResults];
-        
-	    sqlQuery = "SELECT * FROM Test";
-	    
+        numberOfResults = reader.GetInt32(0);
 
-	    dbcmd2.CommandText = sqlQuery;
+        Testnames = new string[numberOfResults];
+        StudentNumbers = new int[numberOfResults];
+
+        sqlQuery = "SELECT * FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"') ORDER BY StuNo ASC";
+
+
+        dbcmd2.CommandText = sqlQuery;
         reader = dbcmd2.ExecuteReader();
 
-	    var counter = 0;
+        var counter = 0;
 
-	    
-	    while(reader.Read())
-	    {
-		    var readerFieldCount = reader.FieldCount;
 
-		    Testnames[counter] = reader.GetString(0);
-		    StudentNumbers[counter] = reader.GetInt32(1);
+        while(reader.Read())
+        {
+            var readerFieldCount = reader.FieldCount;
 
-		    int[] TempQuestionArray = new int[(readerFieldCount-2)];
+            Testnames[counter] = reader.GetString(0);
+            StudentNumbers[counter] = reader.GetInt32(1);
 
-		    for (var i = 2; i < readerFieldCount; i++)
-		    {
-			    
-				    TempQuestionArray[(i-2)] = reader.GetInt32(i);
-			    
-		    }
-		    Questions.Add(TempQuestionArray);
+            int[] TempQuestionArray = new int[(readerFieldCount-2)];
 
-		    counter++;
+            for (var i = 2; i < readerFieldCount; i++)
+            {
 
-	    }
-		
+                TempQuestionArray[(i-2)] = reader.GetInt32(i);
+
+            }
+            Questions.Add(TempQuestionArray);
+
+            counter++;
+
+        }
+
         reader.Close();
         reader = null;
         dbcmd.Dispose();
         dbcmd = null;
-	    dbcmd2.Dispose();
-	    dbcmd2 = null;
+        dbcmd2.Dispose();
+        dbcmd2 = null;
         dbconn.Close();
         dbconn = null;
     }
 
-	private void Display()
-	{
-		var i = 0;
-		var MaxNumberOfQuestions = 0;
-		for (i = 0; i < numberOfResults; i++)
-		{
-			if (Questions[i].Length>= MaxNumberOfQuestions)
-			{
-				MaxNumberOfQuestions = Questions[i].Length;
-			}
-		}
+    private void Display()
+    {
+        var i = 0;
+        var MaxNumberOfQuestions = 0;
+        for (i = 0; i < numberOfResults; i++)
+        {
+            if (Questions[i].Length>= MaxNumberOfQuestions)
+            {
+                MaxNumberOfQuestions = Questions[i].Length;
+            }
+        }
 
-		for (i = 0; i < MaxNumberOfQuestions; i++)
-		{
-			GameObject NewObj = (GameObject) Instantiate(Resources.Load("Question"), StartingRow.transform);
-			NewObj.transform.GetChild(0).GetComponent<Text>().text = "Soru" + (i + 1);
+        for (i = 0; i < MaxNumberOfQuestions; i++)
+        {
+            GameObject NewObj = (GameObject) Instantiate(Resources.Load("Question"), StartingRow.transform);
+            NewObj.transform.GetChild(0).GetComponent<Text>().text = "Soru" + (i + 1);
 
-		}
-		
-		for (i = 0; i < Testnames.Length; i++)
-		{
-			GameObject NewRow = (GameObject) Instantiate(Resources.Load("RowWithColumns"), GridWithRows.transform);
+        }
+
+        for (i = 0; i < Testnames.Length; i++)
+        {
+            GameObject NewRow = (GameObject) Instantiate(Resources.Load("RowWithColumns"), GridWithRows.transform);
 			
-			GameObject NewTestTypeObject = (GameObject) Instantiate(Resources.Load("TestType"), NewRow.transform);
-			NewTestTypeObject.transform.GetChild(0).GetComponent<Text>().text = Testnames[i];
-			
-			GameObject NewStuNo = (GameObject) Instantiate(Resources.Load("StuNo"), NewRow.transform);
-			NewStuNo.transform.GetChild(0).GetComponent<Text>().text = StudentNumbers[i].ToString();
+            GameObject NewTestTypeObject = (GameObject) Instantiate(Resources.Load("TestType"), NewRow.transform);
+            NewTestTypeObject.transform.GetChild(0).GetComponent<Text>().text = Testnames[i];
 
-			for (var j = 0; j < Questions[i].Length; j++)
-			{
-				if(Questions[i][j] == -1) continue;
-				GameObject NewQuestionObject = (GameObject) Instantiate(Resources.Load("Question"), NewRow.transform);
-				NewQuestionObject.transform.GetChild(0).GetComponent<Text>().text = Questions[i][j].ToString();
-			}
-		}
+            GameObject NewStuNo = (GameObject) Instantiate(Resources.Load("StuNo"), NewRow.transform);
+            NewStuNo.transform.GetChild(0).GetComponent<Text>().text = StudentNumbers[i].ToString();
 
-		StartCoroutine(Example());
-	}
-	
-	#endregion
+            for (var j = 0; j < Questions[i].Length; j++)
+            {
+                if(Questions[i][j] == -1) continue;
+                GameObject NewQuestionObject = (GameObject) Instantiate(Resources.Load("Question"), NewRow.transform);
+                NewQuestionObject.transform.GetChild(0).GetComponent<Text>().text = Questions[i][j].ToString();
+            }
+        }
+
+        StartCoroutine(Example());
+    }
+
+    #endregion
 }

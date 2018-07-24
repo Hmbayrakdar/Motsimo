@@ -9,11 +9,12 @@ using Image = UnityEngine.UI.Image;
 using Random = System.Random;
 using Mono.Data.Sqlite; using System.Data;
 using System.Runtime.InteropServices;
+using System.IO;
 
 public class MainScript : MonoBehaviour
 {
     #region Variables
-    
+
     public GameObject[] MainMenuElements;//Ana menü butonlarını tutmak için
     public GameObject[] ConceptsMenuElements;//Kavram menüsündeki butonları tutmak için
     public GameObject[] Images;//UI'daki ana renkleri tutan image objeleri için
@@ -28,18 +29,18 @@ public class MainScript : MonoBehaviour
     public Sprite[] Colors;//Ana renklerin resimlerini tutmak için
 
     private List<Sprite[]> ColorImageSprites = new List<Sprite[]>();
-    private int PictureCounter;//Kaçıncı resimde olduğunu belirlemek için
-    private string ChosenColor;//Hangi ana rengin seçildiğini tutmak için
-    private bool yellowFlag, redFlag, blueFlag;//Renklerin bakıldığını onaylamak için
+    private int PictureCounter, randomInt;
+    private string ChosenColor,conn;
+    private bool yellowFlag, redFlag, blueFlag;
     private int[] FailCounter = new int[5];
     private string TestName = "Color";
     private int randomInt;//Test için gerekli random değerleri tutmak için
-    
-    
+
+
     #endregion
-	
+
     #region Unity Callbacks
-    
+
     // Use this for initialization
     void Start ()
     {
@@ -47,34 +48,98 @@ public class MainScript : MonoBehaviour
         ColorImageSprites.Add(RedPics);
         ColorImageSprites.Add(BluePics);
         ColorImageSprites.Add(YellowPics);
-        
+
         PlayerPrefs.SetInt("StuNumber", 20);
-        
+
         for (int i = 0; i < FailCounter.Length; i++)
         {
             FailCounter[i] = 0;
         }
-        
+
+        AudioSource = gameObject.GetComponent<AudioSource>();
+
+        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Identify/Kırmızı"),
+            (AudioClip)Resources.Load("Sound/Colors/Identify/Mavi"),
+            (AudioClip)Resources.Load("Sound/Colors/Identify/Sarı")
+        };
+
+        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Question/Hangisi kırmızı göster"),
+            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi mavi göster"),
+            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi sarı göster")
+        };
+
+        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
+            (AudioClip)Resources.Load("Sound/Congrats/Harika"),
+            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"),
+            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
+            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
+        };
     }
-	
+
     // Update is called once per frame
     void Update () {
-		
+
     }
 
     IEnumerator Help_Animation(string selected_animation)
     {
-        yield return new WaitForSeconds(4);
-        
+		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+			var firstColorTreshold = 6;
+            var secondColorTreshold = 11;
+            int number = 0;
+            if (PictureCounter <= 5)
+            {
+                number = PictureCounter - 1;
+            }
+            else if (PictureCounter <= 10)
+            {
+                number = PictureCounter - firstColorTreshold;
+            }
+            else if (PictureCounter <= 15)
+            {
+                number = PictureCounter - secondColorTreshold;
+            }
+
+            Debug.Log(number + " PictureCounter: " + PictureCounter);
+
+            FailCounter[number]++;
+            yield break;
+		}
+
+        if (PictureCounter <= 14)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+
+
+        noAudioPlaying = false;
+
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+
+        if (PictureCounter > 14)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+            ConceptsMenuTransition();
+            noAudioPlaying = true;
+            PictureCounter = 0;
+            yield break;
+        }
+
         Point.SetActive(true);
         Point.GetComponent<Animation>().Play(selected_animation);
 
     }
-    
+
     #endregion
-    
+
     #region Menu Transitions
-    
+
     public void ConceptsMenuTransition()
     {
         //Ana menü butonlarını görünmemesi için deaktive et
@@ -141,7 +206,7 @@ public class MainScript : MonoBehaviour
         {
             t.SetActive(false);
         }
-        
+
         //Ana renkleri gösteren butonları aktive et ve içlerine ana renkleri koy(kırmızı,mavi,yeşil)
         foreach (var t in Images)
         {
@@ -152,20 +217,20 @@ public class MainScript : MonoBehaviour
         {
             Images[i].GetComponent<Image>().overrideSprite = Colors[i];
         }
-        
+
         //Bütün renklere baktıktan sonra test simgesi aktive et
         if (redFlag == true && blueFlag == true && yellowFlag == true)
         {
             testImage.SetActive(true);
         }
     }
-    
-  
+
+
     //Ana renkleri tutan objelerin çağırdığı fonksiyon, parametre olarak seçilen rengi alıyor, o renk ile ilgili ilk
     //resmi gösteriyor
     public void ColorTransition(String color)
     {
-        
+
         //Ana renkleri tutan objeleri deaktive et
         foreach (var t in Images)
         {
@@ -175,10 +240,10 @@ public class MainScript : MonoBehaviour
 
         //Seçilen rengi kaydet
         ChosenColor = color;
-        
+
         //Seçilen rengin resimlerini gösterecek objeyi aktive et
         SingleColor.SetActive(true);
- 
+
         //Seçilen rengin resimleri aç ve resim sayacını 1 arttır
         if (color == "red")
         {
@@ -256,20 +321,20 @@ public class MainScript : MonoBehaviour
         {
             t.SetActive(false);
         }
-        
+
         testImage.SetActive(false);
-        
+
         Test[0].SetActive(true);
         Test[1].SetActive(true);
         questionText.SetActive(true);
-        
+
         PictureCounter = 0;
         randomInt = UnityEngine.Random.Range(0, 2);
         Test[randomInt].tag = "trueAnswer";
-        
+
         ColorTestTransition(randomInt);
     }
-    
+
     #endregion
 
     #region Help animation(Not finished)
@@ -284,40 +349,17 @@ public class MainScript : MonoBehaviour
         Point.
         Debug.Log("Hi");
     }*/
-    
+
     #endregion
-    
+
     #region Test for Colors
-    
+
     //Test simgesini gösteren objenin çağırdığı fonksyion, testi başlatır
     public void ColorTestTransition(int i)
     {
         randomInt = UnityEngine.Random.Range(1, 3);
 
-        if (Test[i].tag != "trueAnswer")
-        {
-            var firstColorTreshold = 6;
-            var secondColorTreshold = 11;
-            int number = 0;
-            if (PictureCounter <= 5)
-            {
-                number = PictureCounter - 1;
-            }
-            else if (PictureCounter <= 10)
-            {
-                number = PictureCounter - firstColorTreshold;
-            }
-            else if (PictureCounter <= 15)
-            {
-                number = PictureCounter - secondColorTreshold;
-            }
-            
-            Debug.Log(number + " PictureCounter: " + PictureCounter);
-            
-            FailCounter[number]++;
-            return;
-        }
-        Point.SetActive(false);
+
 
         if (PictureCounter == 5 || PictureCounter == 10 || PictureCounter == 15)
         {
@@ -327,7 +369,7 @@ public class MainScript : MonoBehaviour
                 FailCounter[k] = 0;
             }
         }
-        
+
         switch (randomInt)
         {
             case 1:
@@ -338,25 +380,31 @@ public class MainScript : MonoBehaviour
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,0);
-                    questionText.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+					AudioSource.clip = QuestionAudioClips[0];
+        			AudioSource.Play();
                     TestName = "ColorRed";
                 }
-                
+
                 else if (PictureCounter <= 9)
                 {
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,1);
-                    questionText.GetComponent<Text>().text = "Hangisi mavi göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
+					AudioSource.clip = QuestionAudioClips[1];
+        			AudioSource.Play();
                     TestName = "ColorBlue";
                 }
-                
+
                 else if (PictureCounter <= 14)
                 {
                     Test[0].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(1,2);
-                    questionText.GetComponent<Text>().text = "Hangisi sarı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
+					AudioSource.clip = QuestionAudioClips[2];
+        			AudioSource.Play();
                     TestName = "ColorYellow";
                 }
                 else
@@ -376,21 +424,27 @@ public class MainScript : MonoBehaviour
                     Test[1].GetComponent<Image>().sprite = ColorImageSprites[0][PictureCounter];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,0);
-                    questionText.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi kırmızı göster.";
+					AudioSource.clip = QuestionAudioClips[0];
+        			AudioSource.Play();
                 }
                 else if (PictureCounter <= 9)
                 {
                     Test[1].GetComponent<Image>().sprite = ColorImageSprites[1][PictureCounter-5];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,1);
-                    questionText.GetComponent<Text>().text = "Hangisi mavi göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi mavi göster.";
+					AudioSource.clip = QuestionAudioClips[1];
+        			AudioSource.Play();
                 }
                 else if (PictureCounter <= 14)
                 {
                     Test[1].GetComponent<Image>().sprite = ColorImageSprites[2][PictureCounter-10];
                     PictureCounter++;
                     LoadRandomColorPictureToOtherObject(0,2);
-                    questionText.GetComponent<Text>().text = "Hangisi sarı göster.";
+                    questionTextObject.GetComponent<Text>().text = "Hangisi sarı göster.";
+					AudioSource.clip = QuestionAudioClips[2];
+        			AudioSource.Play();
                 }
                 else
                 {
@@ -438,22 +492,41 @@ public class MainScript : MonoBehaviour
 
         Test[TestObjectNumber].tag = "falseAnswer";
     }
-    
+
     public void SendDataToDB()
     {
-        string conn = "URI=file:" + Application.dataPath + "/Database/Database.db"; //Path to database.
-		
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection(conn);
+        //Path to database.
+        if (Application.platform == RuntimePlatform.Android)
+        {
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+
+			while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+        }
+        else
+        {
+            // WINDOWS
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+
+		IDbConnection dbconn;
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
-		
+
         string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
-		
+
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
-		
+
         reader.Close();
         reader = null;
         dbcmd.Dispose();
@@ -461,9 +534,9 @@ public class MainScript : MonoBehaviour
         dbconn.Close();
         dbconn = null;
     }
-    
+
     #endregion
-    
-    
-    
+
+
+
 }
