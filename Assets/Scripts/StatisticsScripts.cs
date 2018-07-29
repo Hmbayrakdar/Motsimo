@@ -6,6 +6,7 @@ using Mono.Data.Sqlite; using System.Data;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.IO;
+using System.Linq;
 
 public class StatisticsScripts : MonoBehaviour {
     #region Variables
@@ -18,30 +19,26 @@ public class StatisticsScripts : MonoBehaviour {
     private List<int[]> Questions = new List<int[]>();
     private int numberOfResults = 0;
     private string conn;
+    public GameObject NormalSearchCanvas;
+    public GameObject SpecializedSearchCanvas;
+    public GameObject StudentList;
+    public GameObject TestTypesList;
+    private List<int> StuNoDropdownList = new List<int>();
+    private List<string> TestTypeDropdownList = new List<string>();
 		
     #endregion
 
     #region Unity Callbacks
 	
     // Use this for initialization
-    void Start ()
+    private void OnEnable()
     {
+        PlayerPrefs.SetString("TeacherEmail","hamzamelih61@hotmail.com");
         GridWithRows = GameObject.Find("GridWithRows");
         StartingRow = GameObject.Find("StartingRow");
         getData();
         Display();
-    }
-	
-    // Update is called once per frame
-    void Update () {
-		
-    }
-	
-    IEnumerator Example()
-    {
-		
-        yield return new WaitForSeconds(0.25f);
-        GameObject.Find("HorizontalScrollBar").GetComponent<Scrollbar>().value = 0;
+        FillDropDownLists();    
     }
 	
     #endregion
@@ -55,32 +52,13 @@ public class StatisticsScripts : MonoBehaviour {
 
     private void getData()
     {
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-        IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
+        
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
         IDbCommand dbcmd = dbconn.CreateCommand();
         IDbCommand dbcmd2 = dbconn.CreateCommand();
 
-        string sqlQuery = "SELECT COUNT(*) FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"')";
+        string sqlQuery = "SELECT COUNT(*),StuNo,TestType FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"')";
 	    
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
@@ -168,9 +146,95 @@ public class StatisticsScripts : MonoBehaviour {
                 NewQuestionObject.transform.GetChild(0).GetComponent<Text>().text = Questions[i][j].ToString();
             }
         }
+    }
 
-        StartCoroutine(Example());
+    public void SpecializedSearch()
+    {
+        PlayerPrefs.SetInt("StuNumberForBarGraph",StuNoDropdownList[StudentList.GetComponent<Dropdown>().value]);
+        PlayerPrefs.SetString("TestTypeForBarGraph",TestTypeDropdownList[TestTypesList.GetComponent<Dropdown>().value]);
+        NormalSearchCanvas.SetActive(false);
+        SpecializedSearchCanvas.SetActive(true);
+        
+        
+    }
+
+    public void GeneralSearch()
+    {
+        NormalSearchCanvas.SetActive(true);
+        SpecializedSearchCanvas.SetActive(false);
     }
 	
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        
+        IDbConnection dbconn;
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+    }
+
+    private void FillDropDownLists()
+    {
+        IDbConnection dbconn = connectToDB();
+        dbconn.Open(); //Open connection to the database.
+        IDbCommand dbcmd = dbconn.CreateCommand();
+        IDbCommand dbcmd2 = dbconn.CreateCommand();
+
+        string sqlQuery = "SELECT StuNo FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"') group by StuNo";
+	    
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
+
+        List<string> StuNoList = new List<string>();
+        
+        while (reader.Read())
+        {
+            print(reader.GetInt32(0));
+            int tempVar = reader.GetInt32(0);
+            StuNoList.Add(tempVar.ToString());
+            StuNoDropdownList.Add(reader.GetInt32(0));
+        }
+
+        StudentList.GetComponent<Dropdown>().AddOptions(StuNoList);
+        
+        sqlQuery = "SELECT TestType FROM Test WHERE StuNo IN (SELECT StuNo FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"') group by TestType";
+	    
+
+        dbcmd2.CommandText = sqlQuery;
+        reader = dbcmd2.ExecuteReader();
+        
+        TestTypeDropdownList.Add("Hepsi");
+        
+        while(reader.Read())
+        {
+            TestTypeDropdownList.Add(reader.GetString(0));
+        }
+        
+        TestTypesList.GetComponent<Dropdown>().AddOptions(TestTypeDropdownList);
+	
+        reader.Close();
+        reader = null;
+        dbcmd.Dispose();
+        dbcmd = null;
+        dbcmd2.Dispose();
+        dbcmd2 = null;
+        dbconn.Close();
+        dbconn = null;
+    }
     #endregion
 }

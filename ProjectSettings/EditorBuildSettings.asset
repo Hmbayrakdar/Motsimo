@@ -6,14 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/LogInScene.unity
-    guid: 74d21eaf2f5c2e146a1b36c8faea918a
+    path: Assets/Scenes/MainScene.unity
+    guid: 226278d50da9693488edb5b9f12e6626
   - enabled: 1
     path: Assets/Scenes/TeacherInputScene.unity
     guid: be364e96d386ba245a2edc84cb6d6437
-  - enabled: 1
-    path: Assets/Scenes/MainScene.unity
-    guid: 226278d50da9693488edb5b9f12e6626
   - enabled: 1
     path: Assets/Scenes/SizeDifference.unity
     guid: 4d1a34ef270ba3c4aa4c70142922ebd8

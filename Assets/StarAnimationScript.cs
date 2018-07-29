@@ -9,11 +9,13 @@ public class StarAnimationScript : MonoBehaviour
 
     private int starCounter = 0;
     private GameObject[] allChildren;
+    private bool APanelFinished;
 
     public void StartAnimation()
     {
         StarEndAnimation.SetActive(true);
         StarEndAnimation.GetComponent<Animator>().Play("StarDiving",-1,0f);
+        StarEndAnimation.GetComponent<AudioSource>().Play();
     }
 
     public void EndAnimation()
@@ -25,17 +27,19 @@ public class StarAnimationScript : MonoBehaviour
     {
         obj.SetActive(false);
         starCounter++;
+        APanel.GetComponent<AudioSource>().Play();
         if (starCounter >= 4)
         {
-            APanel.SetActive(false);
             APanel.transform.GetChild(1).gameObject.SetActive(false);
             starCounter = 0;
+            APanelFinished = true;
         }
             
     }
 	
     public void StarFunction()
     {
+        APanelFinished = false;
         APanel.SetActive(true);
         APanel.transform.GetChild(1).gameObject.SetActive(true);
         ActivatePanelsChildren();
@@ -55,6 +59,16 @@ public class StarAnimationScript : MonoBehaviour
         {
             child.SetActive(true);
         }
+    }
+
+    public void deactivateAPanel()
+    {
+        APanel.SetActive(false);
+    }
+
+    public bool getAPanelFinished()
+    {
+        return APanelFinished;
     }
 	
 }

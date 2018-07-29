@@ -67,20 +67,6 @@ public class FruitSi : MonoBehaviour
 
         showFruitsImage();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    IEnumerator Identifnd()
-    {
-        
-        yield return new WaitForSeconds(5);
-        
-        print("hello");
-    }
     
     IEnumerator IdentifySound()
     {
@@ -100,20 +86,22 @@ public class FruitSi : MonoBehaviour
         {
             int number = PictureCounter - 1;
             FailCounter[number]++;
+            TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
             yield break;
         }
+        
+        noAudioPlaying = false;
 
         if (PictureCounter < FruitSprites.Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
-        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
-        
-        noAudioPlaying = false;
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
         
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
+        gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
         
         if (PictureCounter >= FruitSprites.Length)
@@ -132,6 +120,8 @@ public class FruitSi : MonoBehaviour
             noAudioPlaying = true;
             yield break;
         }
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
         testFruits(i);
         noAudioPlaying = true;

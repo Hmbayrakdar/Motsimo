@@ -73,11 +73,6 @@ public class AnimalsSceneScript : MonoBehaviour {
         
     }
 	
-    // Update is called once per frame
-    void Update ()
-    {
-        
-    }
 
     IEnumerator IdentifySound()
     {
@@ -96,10 +91,10 @@ public class AnimalsSceneScript : MonoBehaviour {
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			int number = PictureCounter - 1;
             FailCounter[number]++;
+		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
 			yield break;
 		}
-        
-        
+
         noAudioPlaying = false;
         
         if (PictureCounter < AnimalSprites.Length)
@@ -107,13 +102,12 @@ public class AnimalsSceneScript : MonoBehaviour {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
         
-        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
-        
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
-        
+        gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
         if (PictureCounter >= AnimalSprites.Length)
         {
@@ -131,7 +125,9 @@ public class AnimalsSceneScript : MonoBehaviour {
             noAudioPlaying = true;
             yield break;
         }
-
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+        
         testAnimals(i);
         noAudioPlaying = true;
     }

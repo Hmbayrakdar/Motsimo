@@ -101,22 +101,23 @@ public class NumbersSceneScript : MonoBehaviour {
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			var number = PictureCounter - 1;
 			FailCounter[number]++;
+			TestPictureObjects[i].GetComponent<Text>().color  = new Color32(0,0,0,100);
 			yield break;
 		}
+		
+		noAudioPlaying = false;
 		
 		if (PictureCounter < 9)
 		{
 			gameObject.GetComponent<StarAnimationScript>().StarFunction();
 		}
 
-		yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
-		
-		noAudioPlaying = false;
+		yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
         
 		AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
 		AudioSource.Play();
-		
 		yield return new WaitForSeconds(AudioSource.clip.length);
+		gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
 		
 		if (PictureCounter >= 9)
 		{
@@ -134,11 +135,12 @@ public class NumbersSceneScript : MonoBehaviour {
 			noAudioPlaying = true;
 			yield break;
 		}
+		foreach ( var t in TestPictureObjects)
+			t.GetComponent<Text>().color  = new Color32(0,0,0,255);
         
 		testNumbers(i);
 		noAudioPlaying = true;
 	}
-	
     
     #endregion
     

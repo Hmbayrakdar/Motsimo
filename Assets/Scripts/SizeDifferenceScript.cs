@@ -112,21 +112,23 @@ public class SizeDifferenceScript : MonoBehaviour {
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			var number = PictureCounter - 1;
             FailCounter[number]++;
+		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
 		    yield break;
 		}
+        
+        noAudioPlaying = false;
         
         if (PictureCounter < SizeDifferenceSprites.Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
-        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
-
-        noAudioPlaying = false;
-        
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
+        
+        gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
         if (PictureCounter >= SizeDifferenceSprites.Length)
         {
@@ -146,8 +148,10 @@ public class SizeDifferenceScript : MonoBehaviour {
             noAudioPlaying = true;
             yield break;
         }
-
         
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+
         DifferenceTest(i);
         noAudioPlaying = true;
     }

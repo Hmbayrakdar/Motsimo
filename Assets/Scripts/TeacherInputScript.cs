@@ -62,6 +62,7 @@ public class TeacherInputScript : MonoBehaviour
 
         while (reader.Read())
         {
+	        
             Email1 = reader.GetString(0);
             Password1 = reader.GetString(1);
 			}
@@ -78,12 +79,9 @@ public class TeacherInputScript : MonoBehaviour
 			return;
         }
 
-        
-
-
-
         Email = email.GetComponent<InputField>().text;
         Password = password.GetComponent<InputField>().text;
+	    print(" entered " + Email + Password);
 
         if (Email == Email1 && Password == Password1)
         {
@@ -107,6 +105,6 @@ public class TeacherInputScript : MonoBehaviour
 
 	public void goBack()
 	{
-		SceneManager.LoadScene("LoginScene");
+		SceneManager.LoadScene("MainScene");
 	}
 }

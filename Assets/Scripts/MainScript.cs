@@ -15,8 +15,8 @@ public class MainScript : MonoBehaviour
 {
     #region Variables
     
-    public GameObject[] MainMenuElements, ConceptsMenuElements,ColorsMenuElements,TestPictureObjects;
-    public GameObject testStartObject,ShowPictureObject,questionTextObject,Racoon, RacoonText;
+    public GameObject[] MainMenuElements,ColorsMenuElements,TestPictureObjects;
+    public GameObject testStartObject,ShowPictureObject,questionTextObject,Racoon, RacoonText,MenuPanel;
     public Sprite[] RedPics, YellowPics, BluePics, Colors;
 
     
@@ -125,21 +125,22 @@ public class MainScript : MonoBehaviour
             Debug.Log(number + " PictureCounter: " + PictureCounter);
             
             FailCounter[number]++;
+		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
             yield break;
 		}
+        
+        noAudioPlaying = false;
         
         if (PictureCounter <= 14)
         {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
-        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().APanel.activeSelf == false);
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
-
-        noAudioPlaying = false;
-        
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
+        gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
         if (PictureCounter > 14)
         {
@@ -147,11 +148,14 @@ public class MainScript : MonoBehaviour
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
-            ConceptsMenuTransition();
+            ColorMenuTransition();
             noAudioPlaying = true;
             PictureCounter = 0;
             yield break;
         }
+        
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
         ColorTestTransition(i);
         noAudioPlaying = true;
@@ -160,25 +164,10 @@ public class MainScript : MonoBehaviour
     #endregion
     
     #region Menu Transitions
-    
-    public void ConceptsMenuTransition()
+
+    public void goToTeacherLogin()
     {
-        //Ana menü butonlarını görünmemesi için deaktive et
-        foreach (var t in MainMenuElements)
-        {
-            t.SetActive(false);
-        }
-
-        //Kavram menüsündeki butonları aktive et
-        foreach (var t in ConceptsMenuElements)
-        {
-            t.SetActive(true);
-        }
-
-        foreach (var t in ColorsMenuElements)
-        {
-            t.SetActive(false);
-        }
+        SceneManager.LoadScene("TeacherInputScene");
     }
 
     public void goToSizeDifferenceScene()
@@ -207,27 +196,14 @@ public class MainScript : MonoBehaviour
 
     public void MainMenuTransition()
     {
-        //Kavram menüsündeki butonları deaktive et
-        foreach (var t in MainMenuElements)
-        {
-            t.SetActive(true);
-        }
-
-        //Ana menü butonlarını aktive et
-        foreach (var t in ConceptsMenuElements)
-        {
-            t.SetActive(false);
-        }
+        SceneManager.LoadScene("MainScene");
     }
 
     public void ColorMenuTransition()
     {
         Racoon.SetActive(false);
         //Kavram menüsündeki butonları deaktive et
-        foreach (var t in ConceptsMenuElements)
-        {
-            t.SetActive(false);
-        }
+        MenuPanel.SetActive(false);
         
         //Ana renkleri gösteren butonları aktive et ve içlerine ana renkleri koy(kırmızı,mavi,yeşil)
         foreach (var t in ColorsMenuElements)
@@ -259,7 +235,6 @@ public class MainScript : MonoBehaviour
             StartCoroutine(CongratsSound(i));
     }
     
-  
     //Ana renkleri tutan objelerin çağırdığı fonksiyon, parametre olarak seçilen rengi alıyor, o renk ile ilgili ilk
     //resmi gösteriyor
     public void ColorTransition(String color)
@@ -454,7 +429,7 @@ public class MainScript : MonoBehaviour
                     TestPictureObjects[0].SetActive(false);
                     TestPictureObjects[1].SetActive(false);
                     questionTextObject.SetActive(false);
-                    ConceptsMenuTransition();
+                    ColorMenuTransition();
                 }
 
                 break;
@@ -492,7 +467,7 @@ public class MainScript : MonoBehaviour
                     TestPictureObjects[0].SetActive(false);
                     TestPictureObjects[1].SetActive(false);
                     questionTextObject.SetActive(false);
-                    ConceptsMenuTransition();
+                    ColorMenuTransition();
                 }
 
                 break;
