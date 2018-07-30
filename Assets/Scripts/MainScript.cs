@@ -105,6 +105,9 @@ public class MainScript : MonoBehaviour
     
     IEnumerator CongratsSound(int i)
     {
+        if (AudioSource.isPlaying)
+            yield break;
+        
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			var firstColorTreshold = 6;
             var secondColorTreshold = 11;

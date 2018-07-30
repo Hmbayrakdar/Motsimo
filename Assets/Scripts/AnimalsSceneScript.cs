@@ -15,6 +15,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
     public GameObject[] TestPictureObjects;
     public Sprite[] AnimalSprites;
+    public AudioSource ApplauseAudioSource;
     
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
@@ -88,6 +89,9 @@ public class AnimalsSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
+        if (AudioSource.isPlaying)
+            yield break;
+        
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			int number = PictureCounter - 1;
             FailCounter[number]++;
@@ -106,11 +110,14 @@ public class AnimalsSceneScript : MonoBehaviour {
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
+        ApplauseAudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
         if (PictureCounter >= AnimalSprites.Length)
         {
+            gameObject.GetComponent<StarAnimationScript>().StarEndAnimation.GetComponent<AudioSource>().clip =
+                (AudioClip) Resources.Load("Sound/applause");
             gameObject.GetComponent<StarAnimationScript>().StartAnimation();
             TestPictureObjects[0].SetActive(false);
             TestPictureObjects[1].SetActive(false);

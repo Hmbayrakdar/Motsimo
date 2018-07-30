@@ -89,6 +89,9 @@ public class VehicheSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
+        if (AudioSource.isPlaying)
+            yield break;
+        
         if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             int number = PictureCounter - 1;

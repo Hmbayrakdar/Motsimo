@@ -69,10 +69,6 @@ public class SizeDifferenceScript : MonoBehaviour {
         ShowPictures("small");
     }
 	
-    // Update is called once per frame
-    void Update () {
-        
-    } 
     
     IEnumerator IdentifySound(string key)
     {
@@ -109,6 +105,9 @@ public class SizeDifferenceScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
+        if (AudioSource.isPlaying)
+            yield break;
+        
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			var number = PictureCounter - 1;
             FailCounter[number]++;
