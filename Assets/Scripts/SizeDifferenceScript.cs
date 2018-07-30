@@ -17,6 +17,7 @@ public class SizeDifferenceScript : MonoBehaviour {
     public Sprite[] SizeDifferenceSprites;
     public GameObject restartObject, testStartObject, goBackObject;
     public GameObject[] TestPictureObjects;
+    public AudioSource ApplauseAudioSource;
     
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
@@ -65,6 +66,8 @@ public class SizeDifferenceScript : MonoBehaviour {
             (AudioClip)Resources.Load("Sound/Congrats/Süper"),
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
+        
+        ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
         
         ShowPictures("small");
     }
@@ -125,6 +128,7 @@ public class SizeDifferenceScript : MonoBehaviour {
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
+        ApplauseAudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();

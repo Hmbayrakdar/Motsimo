@@ -14,6 +14,7 @@ public class NumbersSceneScript : MonoBehaviour {
 
     public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
     public GameObject[] TestPictureObjects;
+	public AudioSource ApplauseAudioSource;
 	
 	private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
 	private AudioSource AudioSource;
@@ -75,6 +76,8 @@ public class NumbersSceneScript : MonoBehaviour {
 		    (AudioClip)Resources.Load("Sound/Congrats/Süper"),
 		    (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
 	    };
+	    
+	    ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 	    showNumbers();
     }
 	
@@ -114,6 +117,7 @@ public class NumbersSceneScript : MonoBehaviour {
         
 		AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
 		AudioSource.Play();
+		ApplauseAudioSource.Play();
 		yield return new WaitForSeconds(AudioSource.clip.length);
 		gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
 		

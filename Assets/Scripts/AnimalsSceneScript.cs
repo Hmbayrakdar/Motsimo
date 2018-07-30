@@ -69,6 +69,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
 
+        ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
         showAnimalImage();
         

@@ -15,6 +15,7 @@ public class VehicheSceneScript : MonoBehaviour {
     public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Rakun,informationText ;
     public GameObject[] TestPictureObjects;
     public Sprite[] VehicheSprites;
+    public AudioSource ApplauseAudioSource;
     
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
@@ -66,13 +67,10 @@ public class VehicheSceneScript : MonoBehaviour {
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
         
+        ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
+        
         showVehicheImage();
 
-    }
-
-    // Update is called once per frame
-    void Update () {
-		
     }
     
     IEnumerator IdentifySound()
@@ -110,6 +108,7 @@ public class VehicheSceneScript : MonoBehaviour {
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
+        ApplauseAudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         

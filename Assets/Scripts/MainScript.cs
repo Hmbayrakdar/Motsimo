@@ -18,6 +18,7 @@ public class MainScript : MonoBehaviour
     public GameObject[] MainMenuElements,ColorsMenuElements,TestPictureObjects;
     public GameObject testStartObject,ShowPictureObject,questionTextObject,Racoon, RacoonText,MenuPanel;
     public Sprite[] RedPics, YellowPics, BluePics, Colors;
+    public AudioSource ApplauseAudioSource;
 
     
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
@@ -68,12 +69,10 @@ public class MainScript : MonoBehaviour
             (AudioClip)Resources.Load("Sound/Congrats/Süper"),
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
+        
+        ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
     }
 	
-    // Update is called once per frame
-    void Update () {
-		
-    }
     
     IEnumerator IdentifySound()
     {
@@ -142,6 +141,7 @@ public class MainScript : MonoBehaviour
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
         AudioSource.Play();
+        ApplauseAudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
@@ -159,6 +159,7 @@ public class MainScript : MonoBehaviour
         
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+        
         
         ColorTestTransition(i);
         noAudioPlaying = true;
