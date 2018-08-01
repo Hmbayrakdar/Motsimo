@@ -17,7 +17,7 @@ public class ColorsScript : MonoBehaviour {
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
-    
+    private GameObject RacoonHelpObject;
     private Sprite[][] ColorSprites = new Sprite[3][];
     private int PictureCounter;
     private int[] FailCounter = new int[5];
@@ -25,6 +25,7 @@ public class ColorsScript : MonoBehaviour {
     private string[] RacoonTextInput = {"kırmızı", "mavi", "sarı"};
 	private string conn;
     private int ChosenColor;
+    private Coroutine co;
 	
     #endregion
 	
@@ -33,6 +34,7 @@ public class ColorsScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
@@ -69,7 +71,15 @@ public class ColorsScript : MonoBehaviour {
 
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
     }
-	
+    
+    IEnumerator StartRacoonHelpCounter(int i)
+    {
+        yield return new WaitForSeconds(6f);
+        RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[i].GetComponent<RectTransform>());
+        RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+        RacoonHelpObject.gameObject.SetActive(true);
+        RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
 
     IEnumerator IdentifySound()
     {
@@ -93,9 +103,21 @@ public class ColorsScript : MonoBehaviour {
 			int number = PictureCounter - 1;
             FailCounter[number]++;
 		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+		    
+		    var tempNumber = 0;
+		    if (i == 0)
+		        tempNumber = 1;
+		    StopCoroutine(co);
+		    RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+		    RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+		    RacoonHelpObject.gameObject.SetActive(true);
+		    RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+		    
 			yield break;
 		}
-
+        
+        StopCoroutine(co);
+        RacoonHelpObject.SetActive(false);
         noAudioPlaying = false;
         
         if (PictureCounter < ColorSprites[ChosenColor].Length)
@@ -292,6 +314,7 @@ public class ColorsScript : MonoBehaviour {
         TestPictureObjects[testObjectNumber].GetComponent<Image>().sprite = ColorSprites[tempNum][randomInteger];
         TestPictureObjects[testObjectNumber].tag = "falseAnswer";
         
+        co = StartCoroutine(testObjectNumber==0 ? StartRacoonHelpCounter(1) : StartRacoonHelpCounter(0));
     }
     
 	

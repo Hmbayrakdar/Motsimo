@@ -19,13 +19,13 @@ public class NumbersSceneScript : MonoBehaviour {
 	private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
 	private AudioSource AudioSource;
 	private bool noAudioPlaying = true;
-
+	private GameObject RacoonHelpObject;
     private int PictureCounter,randomInt;
 	private int[] FailCounter = new int[9];
 	private string TestName = "Numbers";
 	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
 	private string conn;
-	
+	private Coroutine co;
     #endregion
 	
     #region Unity Callbacks
@@ -33,6 +33,7 @@ public class NumbersSceneScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+	    RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
 	    PictureCounter = 0;
 	    
 	    foreach (var t in TestPictureObjects)
@@ -81,6 +82,15 @@ public class NumbersSceneScript : MonoBehaviour {
 	    showNumbers();
     }
 	
+	IEnumerator StartRacoonHelpCounter(int i)
+	{
+		yield return new WaitForSeconds(6f);
+		RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[i].GetComponent<RectTransform>());
+		RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+		RacoonHelpObject.gameObject.SetActive(true);
+		RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+	}
+	
 	
 	IEnumerator IdentifySound()
 	{
@@ -103,9 +113,21 @@ public class NumbersSceneScript : MonoBehaviour {
 			var number = PictureCounter - 1;
 			FailCounter[number]++;
 			TestPictureObjects[i].GetComponent<Text>().color  = new Color32(0,0,0,100);
+			
+			var tempNumber = 0;
+			if (i == 0)
+				tempNumber = 1;
+			StopCoroutine(co);
+			RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+			RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+			RacoonHelpObject.gameObject.SetActive(true);
+			RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+			
 			yield break;
 		}
 		
+		StopCoroutine(co);
+		RacoonHelpObject.SetActive(false);
 		noAudioPlaying = false;
 		
 		if (PictureCounter < 9)
@@ -228,6 +250,9 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[1].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[1].tag = "falseAnswer";
+				
+				co = StartCoroutine(StartRacoonHelpCounter(randomInt));
+
 				break;
 			case 1:
 				TestPictureObjects[randomInt].tag = "trueAnswer";
@@ -235,6 +260,8 @@ public class NumbersSceneScript : MonoBehaviour {
 				
 				TestPictureObjects[0].GetComponent<Text>().text = falseAnswer.ToString();
 				TestPictureObjects[0].tag = "falseAnswer";
+				
+				co = StartCoroutine(StartRacoonHelpCounter(randomInt));
 				break;
 			default:
 				Debug.Log("Unexpected randomint");

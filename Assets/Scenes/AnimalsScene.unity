@@ -709,6 +709,7 @@ MonoBehaviour:
   goBackObject: {fileID: 1116505563}
   Racoon: {fileID: 827043835}
   RacoonText: {fileID: 915150474}
+  RacoonHelpObject: {fileID: 0}
   TestPictureObjects:
   - {fileID: 1914138945}
   - {fileID: 193025973}

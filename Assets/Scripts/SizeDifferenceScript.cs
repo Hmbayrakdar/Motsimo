@@ -22,13 +22,13 @@ public class SizeDifferenceScript : MonoBehaviour {
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
-
+    private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
     private string TestName = "SizeDifference";
     private bool SmallPictureFlag, BigPictureFlag, isTesting;
 	private string conn;
-	
+    private Coroutine co;
     #endregion
 	
     #region Unity Callbacks
@@ -36,6 +36,7 @@ public class SizeDifferenceScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
         PictureCounter = 0;
         
         SmallPictureFlag = true;
@@ -70,6 +71,15 @@ public class SizeDifferenceScript : MonoBehaviour {
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
         
         ShowPictures("small");
+    }
+    
+    IEnumerator StartRacoonHelpCounter(int i)
+    {
+        yield return new WaitForSeconds(6f);
+        RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[i].GetComponent<RectTransform>());
+        RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+        RacoonHelpObject.gameObject.SetActive(true);
+        RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
     }
 	
     
@@ -115,9 +125,21 @@ public class SizeDifferenceScript : MonoBehaviour {
 			var number = PictureCounter - 1;
             FailCounter[number]++;
 		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+		    
+		    var tempNumber = 0;
+		    if (i == 0)
+		        tempNumber = 1;
+		    StopCoroutine(co);
+		    RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+		    RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+		    RacoonHelpObject.gameObject.SetActive(true);
+		    RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+		    
 		    yield break;
 		}
         
+        StopCoroutine(co);
+        RacoonHelpObject.SetActive(false);
         noAudioPlaying = false;
         
         if (PictureCounter < SizeDifferenceSprites.Length)
@@ -303,6 +325,7 @@ public class SizeDifferenceScript : MonoBehaviour {
                 questionTextObject.GetComponent<Text>().text = "Hangisi büyük göster.";
                 
                 TestPictureObjects[bigPicture].tag = "trueAnswer";
+                co = StartCoroutine(StartRacoonHelpCounter(bigPicture));
                 TestPictureObjects[smallPicture].tag = "falseAnswer";
                 break;
             case 1://The question will ask the smaller picture
@@ -314,6 +337,7 @@ public class SizeDifferenceScript : MonoBehaviour {
                 
                 TestPictureObjects[bigPicture].tag = "falseAnswer";
                 TestPictureObjects[smallPicture].tag = "trueAnswer";
+                co = StartCoroutine(StartRacoonHelpCounter(smallPicture));
                 break;
             default:
                 Debug.Log("Unexpected random.");

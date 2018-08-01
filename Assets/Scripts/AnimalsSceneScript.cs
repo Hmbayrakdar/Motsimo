@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,21 +21,24 @@ public class AnimalsSceneScript : MonoBehaviour {
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
-    
 
+    private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
     private string TestName = "Animals";
     private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
-	private string conn;
+    private string conn;
+    private Coroutine co;
 	
     #endregion
 	
     #region Unity Callbacks
 	
+    
     // Use this for initialization
     void Start ()
     {
+        RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
@@ -72,9 +76,16 @@ public class AnimalsSceneScript : MonoBehaviour {
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
         showAnimalImage();
-        
     }
-	
+
+    IEnumerator StartRacoonHelpCounter(int i)
+    {
+        yield return new WaitForSeconds(6f);
+        RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[i].GetComponent<RectTransform>());
+        RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+        RacoonHelpObject.gameObject.SetActive(true);
+        RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
 
     IEnumerator IdentifySound()
     {
@@ -93,13 +104,25 @@ public class AnimalsSceneScript : MonoBehaviour {
         if (AudioSource.isPlaying)
             yield break;
         
-		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
-			int number = PictureCounter - 1;
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+            int number = PictureCounter - 1;
             FailCounter[number]++;
-		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
-			yield break;
-		}
+            TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+		    
+            var tempNumber = 0;
+            if (i == 0)
+                tempNumber = 1;
+            StopCoroutine(co);
+            RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+            RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+            RacoonHelpObject.gameObject.SetActive(true);
+            RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
 
+            yield break;
+        }
+        
+        StopCoroutine(co);
+        RacoonHelpObject.SetActive(false);
         noAudioPlaying = false;
         
         if (PictureCounter < AnimalSprites.Length)
@@ -214,7 +237,7 @@ public class AnimalsSceneScript : MonoBehaviour {
                     
                     TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
                     TestPictureObjects[randomInteger].tag = "trueAnswer";
-
+                  
                     LoadRandomColorPictureToOtherObject(1);
                     PictureCounter++;                   
                     break;
@@ -273,7 +296,8 @@ public class AnimalsSceneScript : MonoBehaviour {
         
         TestPictureObjects[testObjectNumber].GetComponent<Image>().sprite = AnimalSprites[randomInteger];
         TestPictureObjects[testObjectNumber].tag = "falseAnswer";
-        
+
+        co = StartCoroutine(testObjectNumber==0 ? StartRacoonHelpCounter(1) : StartRacoonHelpCounter(0));
     }
     
 	
@@ -287,24 +311,24 @@ public class AnimalsSceneScript : MonoBehaviour {
         //Path to database.
         if (Application.platform == RuntimePlatform.Android)
         {
-			conn = Application.persistentDataPath + "/Database.db";
+            conn = Application.persistentDataPath + "/Database.db";
 
-			if(!File.Exists(conn)){
-				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
 			
-			while(!loadDB.isDone){}
+                while(!loadDB.isDone){}
 
-				File.WriteAllBytes(conn,loadDB.bytes);
-			}
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
 
         }
         else
         {
             // WINDOWS
-			conn =Application.dataPath + "/StreamingAssets/Database.db";
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
 
-		IDbConnection dbconn;
+        IDbConnection dbconn;
         dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
 
         dbconn.Open(); //Open connection to the database.

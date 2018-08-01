@@ -20,18 +20,20 @@ public class FruitSi : MonoBehaviour
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
-
+    private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
     private string TestName = "Fruits";
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
 	private string conn;
+    private Coroutine co;
 
     #endregion
     // Use this for initialization
     #region Unity Callbacks
     void Start()
     { 
+        RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
         PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
@@ -71,6 +73,15 @@ public class FruitSi : MonoBehaviour
         showFruitsImage();
     }
     
+    IEnumerator StartRacoonHelpCounter(int i)
+    {
+        yield return new WaitForSeconds(6f);
+        RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[i].GetComponent<RectTransform>());
+        RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+        RacoonHelpObject.gameObject.SetActive(true);
+        RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
+    
     IEnumerator IdentifySound()
     {
         noAudioPlaying = false;
@@ -93,9 +104,21 @@ public class FruitSi : MonoBehaviour
             int number = PictureCounter - 1;
             FailCounter[number]++;
             TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+            
+            var tempNumber = 0;
+            if (i == 0)
+                tempNumber = 1;
+            StopCoroutine(co);
+            RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+            RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+            RacoonHelpObject.gameObject.SetActive(true);
+            RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+            
             yield break;
         }
         
+        StopCoroutine(co);
+        RacoonHelpObject.SetActive(false);
         noAudioPlaying = false;
 
         if (PictureCounter < FruitSprites.Length)
@@ -260,7 +283,7 @@ public class FruitSi : MonoBehaviour
 
 
 
-    private void LoadRandomColorPictureToOtherObject(int TestObjectNumber)
+    private void LoadRandomColorPictureToOtherObject(int testObjectNumber)
     {
         var randomInteger = UnityEngine.Random.Range(0, FruitSprites.Length);
 
@@ -269,9 +292,10 @@ public class FruitSi : MonoBehaviour
             randomInteger = UnityEngine.Random.Range(0, FruitSprites.Length);
         }
 
-        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = FruitSprites[randomInteger];
-        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+        TestPictureObjects[testObjectNumber].GetComponent<Image>().sprite = FruitSprites[randomInteger];
+        TestPictureObjects[testObjectNumber].tag = "falseAnswer";
 
+        co = StartCoroutine(testObjectNumber==0 ? StartRacoonHelpCounter(1) : StartRacoonHelpCounter(0));
     }
 
 
