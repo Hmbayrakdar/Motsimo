@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 
 public class StarAnimationScript : MonoBehaviour
 {
@@ -15,12 +16,17 @@ public class StarAnimationScript : MonoBehaviour
     {
         StarEndAnimation.SetActive(true);
         StarEndAnimation.GetComponent<Animator>().Play("StarDiving",-1,0f);
-        StarEndAnimation.GetComponent<AudioSource>().Play();
+        StarEndAnimation.GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("Sound/StarFallSound"),0.8f);
     }
 
     public void EndAnimation()
     {
         gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        
     }
 
     public void StarFunction(GameObject obj)

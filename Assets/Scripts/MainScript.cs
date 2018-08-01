@@ -196,6 +196,12 @@ public class MainScript : MonoBehaviour
     {
         SceneManager.LoadScene("FruitsScene");
     }
+    
+    public void goToColorsScene()
+    {
+        SceneManager.LoadScene("ColorsScene");
+    }
+
 
 
     public void MainMenuTransition()
