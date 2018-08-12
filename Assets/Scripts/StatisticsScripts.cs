@@ -172,9 +172,11 @@ public class StatisticsScripts : MonoBehaviour {
             warning.SetActive(true);
             return;
         }
+        
+        
            
-        PlayerPrefs.SetInt("StuNumberForBarGraph",StuNoDropdownList[StudentList.GetComponent<Dropdown>().value]);
-        PlayerPrefs.SetString("TestTypeForBarGraph",TestTypeDropdownList[TestTypesList.GetComponent<Dropdown>().value]);
+        PlayerPrefs.SetInt("StuNumberForBarGraph",Int32.Parse(StudentList.transform.GetChild(0).GetComponent<Text>().text));
+        PlayerPrefs.SetString("TestTypeForBarGraph",TestTypesList.transform.GetChild(0).GetComponent<Text>().text);
         PlayerPrefs.SetInt("SearchTypeForBarGraph",SearchTypeList.GetComponent<Dropdown>().value);
         print(PlayerPrefs.GetInt("SearchTypeForBarGraph"));
         NormalSearchCanvas.SetActive(false);
