@@ -26,6 +26,9 @@ public class NumbersSceneScript : MonoBehaviour {
 	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
 	private string conn;
 	private Coroutine co;
+	private float[] AnswerTimes = new float[9];
+	private float passedTime;
+	
     #endregion
 	
     #region Unity Callbacks
@@ -82,6 +85,14 @@ public class NumbersSceneScript : MonoBehaviour {
 	    showNumbers();
     }
 	
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			SceneManager.LoadScene("MainScene");
+		}
+	}
+	
 	IEnumerator StartRacoonHelpCounter(int i)
 	{
 		yield return new WaitForSeconds(6f);
@@ -110,8 +121,7 @@ public class NumbersSceneScript : MonoBehaviour {
 			yield break;
 		
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
-			var number = PictureCounter - 1;
-			FailCounter[number]++;
+			FailCounter[PictureCounter-1]++;
 			TestPictureObjects[i].GetComponent<Text>().color  = new Color32(0,0,0,100);
 			
 			var tempNumber = 0;
@@ -125,6 +135,9 @@ public class NumbersSceneScript : MonoBehaviour {
 			
 			yield break;
 		}
+		
+		passedTime = Time.time - passedTime;
+		AnswerTimes[PictureCounter-1] = passedTime;
 		
 		StopCoroutine(co);
 		RacoonHelpObject.SetActive(false);
@@ -241,6 +254,7 @@ public class NumbersSceneScript : MonoBehaviour {
 		var falseAnswer = randomInt;
 
 		randomInt = UnityEngine.Random.Range(0, 2);
+		passedTime = Time.time;
 
 		switch (randomInt)
 		{
@@ -303,6 +317,13 @@ public class NumbersSceneScript : MonoBehaviour {
 		dbcmd.CommandText = sqlQuery;
 		IDataReader reader = dbcmd.ExecuteReader();
 		
+		IDbCommand dbcmd2 = dbconn.CreateCommand();
+		sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5,q6,q7,q8,q9) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+","+AnswerTimes[5]+","+AnswerTimes[6]+","+AnswerTimes[7]+","+AnswerTimes[8]+")";
+		dbcmd2.CommandText = sqlQuery;
+		reader = dbcmd2.ExecuteReader();
+        
+		dbcmd2.Dispose();
+		dbcmd2 = null;
 		reader.Close();
 		reader = null;
 		dbcmd.Dispose();

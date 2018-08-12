@@ -22,8 +22,7 @@ public class StudentRegisterScript : MonoBehaviour
     private int[] StudentNumbers;
     private int numberOfResults = 0;
     private string conn;
-    //public GameObject[] StuNoButttons;
-    private List<GameObject> StuNoButttons = new List<GameObject>();
+    public ToggleGroup StudentToggles;
 
     void Start()
     {
@@ -31,6 +30,14 @@ public class StudentRegisterScript : MonoBehaviour
         getData();
         Display();
         PlayerPrefs.SetInt("StuNumber",-1);
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
     }
 	
     public void Play()
@@ -60,11 +67,30 @@ public class StudentRegisterScript : MonoBehaviour
 
     public void logOut()
     {
+        PlayerPrefs.SetInt("IsLoggedIn",0);
         SceneManager.LoadScene("TeacherInputScene");
     }
+    
+    private bool CheckInputs()
+    {
+        string studentName = StuName.GetComponent<InputField>().text;
+        string studentNumber = StuNo.GetComponent<InputField>().text;
+        string studentSurname = StuSurname.GetComponent<InputField>().text;
+
+        if (studentName != "" && studentNumber != "" && studentSurname != "") return true;
+        warning.transform.GetChild(0).GetComponent<Text>().text = "Lütfen boşlukları doldurun.";
+        return false;
+
+    }
+
 
     public void RegisterStudent()
     {
+        if (!CheckInputs())
+        {
+            warning.SetActive(true);
+            return;
+        }
         //Path to database.
         if (Application.platform == RuntimePlatform.Android)
         {
@@ -114,8 +140,8 @@ public class StudentRegisterScript : MonoBehaviour
         }
         catch (Exception e)
         {
+            print(e.StackTrace);
             warning.SetActive(true);
-            //warning.transform.GetChild(0).GetComponent<Text>().text = e.Source + e.Message;
             warning.transform.GetChild(0).GetComponent<Text>().text = "Kayıt başarısız. Başka bir numara ile deneyin. Problem devam ederse destek isteyin.";
             return;
         }
@@ -164,7 +190,6 @@ public class StudentRegisterScript : MonoBehaviour
         StuNames = new string[numberOfResults];
         StudentNumbers = new int[numberOfResults];
         StuSurnames = new string[numberOfResults];
-        //StuNoButttons = new GameObject[numberOfResults];
         
         sqlQuery = "SELECT * FROM Student WHERE Teacher = '"+PlayerPrefs.GetString("TeacherEmail")+"' ORDER BY StuNo ASC";
 	    
@@ -201,10 +226,16 @@ public class StudentRegisterScript : MonoBehaviour
         for (i = 0; i < StudentNumbers.Length; i++)
         {
             GameObject NewRow = (GameObject) Instantiate(Resources.Load("RowWithColumns"), GridWithRows.transform);
+            
+            GameObject NewToggle = Instantiate(Resources.Load("StudentRegister/Toggle"), NewRow.transform) as GameObject;
+            NewToggle.GetComponent<Toggle>().onValueChanged.AddListener(delegate
+            {
+                CheckStuNoButtons(NewToggle);
+            });
+            NewToggle.GetComponent<Toggle>().group = StudentToggles;
 			
             GameObject NewStuNo = Instantiate(StuNoButtonPrefab, NewRow.transform) as GameObject;
             NewStuNo.transform.GetChild(0).GetComponent<Text>().text = StudentNumbers[i].ToString();
-            StuNoButttons.Add(NewStuNo);
 			
             GameObject NewStuNameObject = (GameObject) Instantiate(Resources.Load("TestType"), NewRow.transform);
             NewStuNameObject.transform.GetChild(0).GetComponent<Text>().text = StuNames[i];
@@ -216,18 +247,12 @@ public class StudentRegisterScript : MonoBehaviour
 
     public void CheckStuNoButtons(GameObject obj)
     {
-        GameObject[] NewStuNoButton = GameObject.FindGameObjectsWithTag("Pressed");
+        var chosenStuNo = obj.transform.parent.GetChild(1).GetChild(0).GetComponent<Text>().text;
 
-        foreach (GameObject t in NewStuNoButton)
+        if (obj.GetComponent<Toggle>().isOn)
         {
-            t.tag = "Unpressed";
-            t.GetComponent<Image>().overrideSprite = Resources.Load<Sprite>("StudentRegister/ButtonUnpressed");
+            PlayerPrefs.SetInt("StuNumber", Int32.Parse(chosenStuNo));
         }
-        
-        PlayerPrefs.SetInt("StuNumber", Int32.Parse(obj.transform.GetChild(0).GetComponent<Text>().text));
-        print("Chosen stuNo: " + PlayerPrefs.GetInt("StuNumber"));
-        obj.GetComponent<Image>().overrideSprite = Resources.Load<Sprite>("StudentRegister/ButtonPressed");
-        obj.tag = "Pressed";
     }
     
 

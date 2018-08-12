@@ -23,10 +23,16 @@ public class TeacherInputScript : MonoBehaviour
     private string Password1;
 
     private string conn;
+	
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			SceneManager.LoadScene("MainScene");
+		}
+	}
 
-
-
-    public void Input()
+    public void Login()
     {
         //Path to database.
         if (Application.platform == RuntimePlatform.Android)
@@ -87,6 +93,7 @@ public class TeacherInputScript : MonoBehaviour
         {
             print("Login successful");
             PlayerPrefs.SetString("TeacherEmail", Email);
+	        PlayerPrefs.SetInt("IsLoggedIn",1);
             SceneManager.LoadScene("StudentRegisterScene");
         }
         else

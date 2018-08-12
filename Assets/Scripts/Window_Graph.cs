@@ -1,21 +1,11 @@
-﻿/* 
-    ------------------- Code Monkey -------------------
-
-    Thank you for downloading this package
-    I hope you find it useful in your projects
-    If you have any questions let me know
-    Cheers!
-
-               unitycodemonkey.com
-    --------------------------------------------------
- */
-
+﻿
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mono.Data.Sqlite; using System.Data;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class Window_Graph : MonoBehaviour {
 
@@ -36,19 +26,63 @@ public class Window_Graph : MonoBehaviour {
         
         valueList.Clear();
         barList.Clear();
-
+        
+        /*if(PlayerPrefs.GetInt("SearchTypeForBarGraph")==1)
+        {
+            if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
+            {
+                getDataAllTestTypes();
+                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
+                                                 " numaralı öğrencinin test türlerinde yaptığı ortalama yanlış sayıları";
+            }
+            else
+            {
+                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
+                                                 PlayerPrefs.GetString("TestTypeForBarGraph") +
+                                                 " testinde her sorudaki yanlış ortalamaları";
+                getDataSpecifiedTestTypes();
+            }
+        }
+        else if (PlayerPrefs.GetInt("SearchTypeForBarGraph") == 2)
+        {
+            if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
+            {
+                getDataAllTestTypes();
+                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
+                                                 " numaralı öğrencinin test türlerinde ortalama cevaplama süreleri";
+            }
+            else
+            {
+                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
+                                                 PlayerPrefs.GetString("TestTypeForBarGraph") +
+                                                 " testinde her sorudaki cevaplama süreleri";
+                getDataSpecifiedTestTypes();
+            }
+        }*/
+        
         if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
         {
             getDataAllTestTypes();
-            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " Numaralı Öğrencinin Genel Test Sonuçları";
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
+                                             " numaralı öğrencinin test türlerinde yaptığı ortalama yanlış sayıları";
         }
         else
         {
-            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " Numaralı Öğrencinin "+ PlayerPrefs.GetString("TestTypeForBarGraph") +" Test Sonuçları";
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
+                                             PlayerPrefs.GetString("TestTypeForBarGraph") +
+                                             " testinde her sorudaki yanlış ortalamaları";
             getDataSpecifiedTestTypes();
         }
 
         ShowGraph(valueList, -1, barList, (float _f) => "" + Mathf.RoundToInt(_f));
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
     }
 
 
@@ -71,12 +105,7 @@ public class Window_Graph : MonoBehaviour {
         {
             conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
-        
-        IDbConnection dbconn;
         return (IDbConnection)new SqliteConnection("URI=file:" + conn);
-        
-
-
     }
 
     private void getDataAllTestTypes( )
@@ -85,9 +114,20 @@ public class Window_Graph : MonoBehaviour {
         
         dbconn.Open(); //Open connection to the database.
         IDbCommand dbcmd = dbconn.CreateCommand();
-        
-        string sqlQuery = "SELECT  Count(TestType),TestType,avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo ="+PlayerPrefs.GetInt("StuNumberForBarGraph")+" group by TestType order by StuNo asc;";
-        
+        string sqlQuery;
+        if (PlayerPrefs.GetInt("SearchTypeForBarGraph") == 1)
+        {
+            sqlQuery =
+                "SELECT  Count(TestType),TestType,avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo =" +
+                PlayerPrefs.GetInt("StuNumberForBarGraph") + " group by TestType order by StuNo asc;";
+        }
+        else
+        {
+            sqlQuery =
+                "SELECT  Count(TestType),TestType,avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM TestTimes where StuNo =" +
+                PlayerPrefs.GetInt("StuNumberForBarGraph") + " group by TestType order by StuNo asc;";
+        }
+
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
 
@@ -129,8 +169,22 @@ public class Window_Graph : MonoBehaviour {
         IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
         IDbCommand dbcmd = dbconn.CreateCommand();
-        
-        string sqlQuery = "SELECT  avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo ="+PlayerPrefs.GetInt("StuNumberForBarGraph")+" and TestType ='"+PlayerPrefs.GetString("TestTypeForBarGraph")+"'";
+        string sqlQuery;
+        if (PlayerPrefs.GetInt("SearchTypeForBarGraph") == 1)
+        {
+            sqlQuery =
+                "SELECT  avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo =" +
+                PlayerPrefs.GetInt("StuNumberForBarGraph") + " and TestType ='" +
+                PlayerPrefs.GetString("TestTypeForBarGraph") + "'";
+        }
+        else
+        {
+            sqlQuery =
+                "SELECT  avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM TestTimes where StuNo =" +
+                PlayerPrefs.GetInt("StuNumberForBarGraph") + " and TestType ='" +
+                PlayerPrefs.GetString("TestTypeForBarGraph") + "'";
+        }
+
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
 

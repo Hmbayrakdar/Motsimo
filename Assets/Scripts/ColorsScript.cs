@@ -8,7 +8,7 @@ using System.Linq;
 
 public class ColorsScript : MonoBehaviour {
 
-	#region Variables
+    #region Variables
 	
     public GameObject questionTextObject,ColorsMenuObjects, ShowPictureObject, restartObject, testStartObject, ReloadSceneObject, Racoon, RacoonText;
     public GameObject[] TestPictureObjects;
@@ -19,13 +19,18 @@ public class ColorsScript : MonoBehaviour {
     private bool noAudioPlaying = true;
     private GameObject RacoonHelpObject;
     private Sprite[][] ColorSprites = new Sprite[3][];
-    private int PictureCounter;
+    private int[] mixTestColorCounter = new int[3];
     private int[] FailCounter = new int[5];
-    private string TestName = "Renkler";
+    List<int[]> mixTestFailCounter = new List<int[]>(); 
+    List<float[]> mixTestAnswerTimes = new List<float[]>(); 
+    private string[] TestNames = {"Kırmızı", "Mavi", "Sarı"};
     private string[] RacoonTextInput = {"kırmızı", "mavi", "sarı"};
-	private string conn;
+    private string conn;
     private int ChosenColor;
     private Coroutine co;
+    private float[] AnswerTimes = new float[5];
+    private float passedTime;
+    private bool isMixTestFinished = false , isMixTestActive = false;
 	
     #endregion
 	
@@ -35,7 +40,6 @@ public class ColorsScript : MonoBehaviour {
     void Start ()
     {
         RacoonHelpObject = (GameObject)Instantiate(Resources.Load("RacoonHelp"));
-        PictureCounter = 0;
         foreach (var t in TestPictureObjects)
         {
             t.tag = "trueAnswer";
@@ -46,6 +50,23 @@ public class ColorsScript : MonoBehaviour {
             FailCounter[i] = 0;
         }
         
+        for (int i = 0; i < 3; i++)
+        {
+            mixTestColorCounter[i] = 0; 
+        }
+        
+        
+        for (int i = 0; i < 3; i++)
+        {
+            mixTestFailCounter.Add(new int[5]);
+            mixTestAnswerTimes.Add(new float[5]);
+            for (int j = 0; j < 5; j++)
+            {
+                mixTestFailCounter[i][j] = 0;
+                mixTestAnswerTimes[i][j] = 0;
+            }
+        }
+
         AudioSource = gameObject.GetComponent<AudioSource>();
         
         ColorSprites[0] = Resources.LoadAll<Sprite>("Pictures/Kırmızı");
@@ -72,6 +93,14 @@ public class ColorsScript : MonoBehaviour {
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
     }
     
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
+    }
+    
     IEnumerator StartRacoonHelpCounter(int i)
     {
         yield return new WaitForSeconds(6f);
@@ -96,31 +125,103 @@ public class ColorsScript : MonoBehaviour {
     IEnumerator CongratsSound(int i)
     {
         if (AudioSource.isPlaying)
-                yield break;
-  
+            yield break;
         
-		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
-			int number = PictureCounter - 1;
-            FailCounter[number]++;
-		    TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+            FailCounter[mixTestColorCounter[ChosenColor]-1]++;
+            TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
 		    
-		    var tempNumber = 0;
-		    if (i == 0)
-		        tempNumber = 1;
-		    StopCoroutine(co);
-		    RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
-		    RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
-		    RacoonHelpObject.gameObject.SetActive(true);
-		    RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+            var tempNumber = 0;
+            if (i == 0)
+                tempNumber = 1;
+            StopCoroutine(co);
+            RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+            RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+            RacoonHelpObject.gameObject.SetActive(true);
+            RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
 		    
-			yield break;
-		}
+            yield break;
+        }
+        passedTime = Time.time - passedTime;
+        AnswerTimes[mixTestColorCounter[ChosenColor]-1] = passedTime;
         
         StopCoroutine(co);
         RacoonHelpObject.SetActive(false);
         noAudioPlaying = false;
         
-        if (PictureCounter < ColorSprites[ChosenColor].Length)
+        if (mixTestColorCounter[ChosenColor] < ColorSprites[ChosenColor].Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarFunction();
+        }
+        
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
+
+        AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+        AudioSource.Play();
+        ApplauseAudioSource.Play();
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
+
+        
+        if (mixTestColorCounter[ChosenColor] >= ColorSprites[ChosenColor].Length)
+        {
+            gameObject.GetComponent<StarAnimationScript>().StarEndAnimation.GetComponent<AudioSource>().clip =
+                (AudioClip) Resources.Load("Sound/applause");
+            gameObject.GetComponent<StarAnimationScript>().StartAnimation();
+            TestPictureObjects[0].SetActive(false);
+            TestPictureObjects[1].SetActive(false);
+            questionTextObject.SetActive(false);
+
+            mixTestColorCounter[ChosenColor] = 0;
+            SendDataToDB();
+
+            restartObject.SetActive(true);
+            testStartObject.SetActive(true);
+            ReloadSceneObject.SetActive(true);
+            noAudioPlaying = true;
+            isMixTestFinished = false;
+            isMixTestActive = false;
+            yield break;
+        }
+        
+
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+        
+        testAnimals();
+        
+        noAudioPlaying = true;
+    }
+    
+    IEnumerator CongratsSoundMixTest(int i)
+    {
+        if (AudioSource.isPlaying)
+            yield break;
+        
+        if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
+            TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
+
+            mixTestFailCounter[ChosenColor][mixTestColorCounter[ChosenColor]-1]++;
+		    
+            var tempNumber = 0;
+            if (i == 0)
+                tempNumber = 1;
+            StopCoroutine(co);
+            RacoonHelpObject.GetComponent<RectTransform>().SetParent(TestPictureObjects[tempNumber].GetComponent<RectTransform>());
+            RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
+            RacoonHelpObject.gameObject.SetActive(true);
+            RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+		    
+            yield break;
+        }
+        passedTime = Time.time - passedTime;
+        mixTestAnswerTimes[ChosenColor][mixTestColorCounter[ChosenColor]-1] = passedTime;
+        
+        StopCoroutine(co);
+        RacoonHelpObject.SetActive(false);
+        noAudioPlaying = false;
+        
+        if (mixTestColorCounter[ChosenColor] <= ColorSprites[ChosenColor].Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
@@ -133,7 +234,13 @@ public class ColorsScript : MonoBehaviour {
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
         
-        if (PictureCounter >= ColorSprites[ChosenColor].Length)
+        if (mixTestColorCounter[0] == 5 && mixTestColorCounter[1] == 5 && mixTestColorCounter[2] == 5)
+        {
+            isMixTestFinished = true;
+            isMixTestActive = false;
+        }
+
+        if (isMixTestFinished)
         {
             gameObject.GetComponent<StarAnimationScript>().StarEndAnimation.GetComponent<AudioSource>().clip =
                 (AudioClip) Resources.Load("Sound/applause");
@@ -142,19 +249,24 @@ public class ColorsScript : MonoBehaviour {
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
 
-            PictureCounter = 0;
-            SendDataToDB();
+            for (int j = 0; j < 3; j++)
+            {
+                SendDataToDBforMixTest(mixTestFailCounter[i], mixTestAnswerTimes[i],i);
+            }
 
-            restartObject.SetActive(true);
-            testStartObject.SetActive(true);
-            ReloadSceneObject.SetActive(true);
+            ColorsMenuObjects.SetActive(true);
             noAudioPlaying = true;
+            isMixTestFinished = false;
+            isMixTestActive = false;
             yield break;
         }
+        
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
-        testAnimals(i);
+
+        mixTest();
+        
         noAudioPlaying = true;
     }
     
@@ -166,14 +278,16 @@ public class ColorsScript : MonoBehaviour {
     {
         SceneManager.LoadScene("ColorsScene");
     }
+    
 
     public void PlaySound(int i)
     {
         ChosenColor = i;
+        mixTestColorCounter[ChosenColor] = 0;
         if(noAudioPlaying)
             StartCoroutine(IdentifySound());
     }
-    
+
     public void NextImage()
     {
         if(noAudioPlaying)
@@ -182,8 +296,13 @@ public class ColorsScript : MonoBehaviour {
     
     public void PlayCongrats(int i)
     {
-        if(noAudioPlaying)
-            StartCoroutine(CongratsSound(i));
+        if (noAudioPlaying)
+        {
+            if(isMixTestActive)
+                StartCoroutine(CongratsSoundMixTest(i));
+            else
+                StartCoroutine(CongratsSound(i)); 
+        }     
     }
 
     public void ReShowImages()
@@ -200,18 +319,18 @@ public class ColorsScript : MonoBehaviour {
         ColorsMenuObjects.SetActive(false);
         ShowPictureObject.SetActive(true);
         Racoon.SetActive(true);
-        if (PictureCounter < ColorSprites[ChosenColor].Length)
+        if (mixTestColorCounter[ChosenColor] < ColorSprites[ChosenColor].Length)
         {
             
             RacoonText.GetComponent<Text>().text = "Bu renk " + RacoonTextInput[ChosenColor];
-            ShowPictureObject.GetComponent<Image>().overrideSprite = ColorSprites[ChosenColor][PictureCounter];
-            PictureCounter++;
+            ShowPictureObject.GetComponent<Image>().overrideSprite = ColorSprites[ChosenColor][mixTestColorCounter[ChosenColor]];
+            mixTestColorCounter[ChosenColor]++;
         }
         else
         {
             ShowPictureObject.SetActive(false);
             Racoon.SetActive(false);
-            PictureCounter = 0;
+            mixTestColorCounter[ChosenColor] = 0;
 			
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
@@ -232,45 +351,45 @@ public class ColorsScript : MonoBehaviour {
             t.SetActive(true);
         }
 
-        PictureCounter = 0;
-        testAnimals(-1);
+        mixTestColorCounter[ChosenColor] = 0;
+        testAnimals();
+    }
+    
+    public void mixTestStart()
+    {
+        ColorsMenuObjects.SetActive(false);
+        
+        questionTextObject.SetActive(true);
+        foreach (var t in TestPictureObjects)
+        {
+            t.SetActive(true);
+        }
+        
+        for (int i = 0; i < 3; i++)
+        {
+            mixTestColorCounter[i] = 0; 
+        }
+        
+        isMixTestActive = true;
+
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                mixTestFailCounter[i][j] = 0;
+                mixTestAnswerTimes[i][j] = 0;
+            }
+        }
+        
+        mixTest();
     }
 
 
-    public void testAnimals(int i)
+    private void testAnimals()
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
         
-        if (i == -1)
-        {
-            AudioSource.clip = QuestionAudioClips[ChosenColor];
-            AudioSource.Play();
-            switch (randomInteger)
-            {
-                case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
-                    
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(1);
-                    PictureCounter++;                   
-                    break;
-                case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(0);
-                    PictureCounter++; 
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-
-            return;
-        }
+        passedTime = Time.time;
 
         AudioSource.clip = QuestionAudioClips[ChosenColor];
         AudioSource.Play();
@@ -279,19 +398,19 @@ public class ColorsScript : MonoBehaviour {
         {
             case 0:
                 questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][PictureCounter];
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][mixTestColorCounter[ChosenColor]];
                 TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                 LoadRandomColorPictureToOtherObject(1);
-                PictureCounter++;              
+                mixTestColorCounter[ChosenColor]++;              
                 break;
             case 1:
                 questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
-                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][PictureCounter];
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][mixTestColorCounter[ChosenColor]];
                 TestPictureObjects[randomInteger].tag = "trueAnswer";
 
                 LoadRandomColorPictureToOtherObject(0);
-                PictureCounter++;
+                mixTestColorCounter[ChosenColor]++;
 
                 break;
             default:
@@ -299,6 +418,49 @@ public class ColorsScript : MonoBehaviour {
                 break;
         }
     }
+
+    private void mixTest()
+    {
+        ChosenColor = UnityEngine.Random.Range(0, 3);
+        while (mixTestColorCounter[ChosenColor] == 5)
+            ChosenColor = UnityEngine.Random.Range(0, 3);
+        
+        print( "Kırmızı : " + mixTestColorCounter[0] + " Mavi: " + mixTestColorCounter[1] + " Sarı: " + mixTestColorCounter[2]);
+
+
+        var randomInteger = UnityEngine.Random.Range(0, 2);
+        passedTime = Time.time;
+
+        AudioSource.clip = QuestionAudioClips[ChosenColor];
+        AudioSource.Play();
+        
+        switch (randomInteger)
+        {
+            case 0:
+                questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][mixTestColorCounter[ChosenColor]];
+                TestPictureObjects[randomInteger].tag = "trueAnswer";
+
+                LoadRandomColorPictureToOtherObject(1);
+                mixTestColorCounter[ChosenColor]++;
+                break;
+            case 1:
+                questionTextObject.GetComponent<Text>().text = "Hangisi " + RacoonTextInput[ChosenColor] + " Göster";
+                TestPictureObjects[randomInteger].GetComponent<Image>().sprite = ColorSprites[ChosenColor][mixTestColorCounter[ChosenColor]];
+                TestPictureObjects[randomInteger].tag = "trueAnswer";
+
+                LoadRandomColorPictureToOtherObject(0);
+                mixTestColorCounter[ChosenColor]++;
+                break;
+            default:
+                Debug.Log("Unexpected random integer.");
+                break;
+        }
+
+        
+    }
+
+    
     
     private void LoadRandomColorPictureToOtherObject(int testObjectNumber)
     {
@@ -323,41 +485,80 @@ public class ColorsScript : MonoBehaviour {
         SceneManager.LoadScene("MainScene");
     }
     
-
-    public void SendDataToDB()
+    private IDbConnection connectToDB()
     {
-        //Path to database.
         if (Application.platform == RuntimePlatform.Android)
         {
-			conn = Application.persistentDataPath + "/Database.db";
+            conn = Application.persistentDataPath + "/Database.db";
 
-			if(!File.Exists(conn)){
-				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
 			
-			while(!loadDB.isDone){}
+                while(!loadDB.isDone){}
 
-				File.WriteAllBytes(conn,loadDB.bytes);
-			}
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
 
         }
         else
         {
-            // WINDOWS
-			conn =Application.dataPath + "/StreamingAssets/Database.db";
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
+        
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+    }
+    
 
-		IDbConnection dbconn;
+    private void SendDataToDB()
+    {
+        IDbConnection dbconn = connectToDB();
         dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
 
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
 		
-        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
+        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestNames[ChosenColor]+"',"+PlayerPrefs.GetInt("StuNumber")+","+FailCounter[0]+","+FailCounter[1]+","+FailCounter[2]+","+FailCounter[3]+","+FailCounter[4]+")";
 		
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
+        
+        IDbCommand dbcmd2 = dbconn.CreateCommand();
+        sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestNames[ChosenColor]+"',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+")";
+        dbcmd2.CommandText = sqlQuery;
+        reader = dbcmd2.ExecuteReader();
+        
+        dbcmd2.Dispose();
+        dbcmd2 = null;
+        reader.Close();
+        reader = null;
+        dbcmd.Dispose();
+        dbcmd = null;
+        dbconn.Close();
+        dbconn = null;
+    }
+    
+    private void SendDataToDBforMixTest(int[] failCounter, float[] answerTimes, int chosenColor)
+    {
+        IDbConnection dbconn = connectToDB();
+        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+
+        dbconn.Open(); //Open connection to the database.
+
+        IDbCommand dbcmd = dbconn.CreateCommand();
 		
+        string sqlQuery = "INSERT INTO Test (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestNames[chosenColor]+"',"+PlayerPrefs.GetInt("StuNumber")+","+failCounter[0]+","+failCounter[1]+","+failCounter[2]+","+failCounter[3]+","+failCounter[4]+")";
+		
+        dbcmd.CommandText = sqlQuery;
+        IDataReader reader = dbcmd.ExecuteReader();
+        
+        IDbCommand dbcmd2 = dbconn.CreateCommand();
+        sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestNames[chosenColor]+"',"+PlayerPrefs.GetInt("StuNumber")+","+answerTimes[0]+","+answerTimes[1]+","+answerTimes[2]+","+answerTimes[3]+","+answerTimes[4]+")";
+        dbcmd2.CommandText = sqlQuery;
+        reader = dbcmd2.ExecuteReader();
+        
+        dbcmd2.Dispose();
+        dbcmd2 = null;
         reader.Close();
         reader = null;
         dbcmd.Dispose();

@@ -27,6 +27,8 @@ public class FruitSi : MonoBehaviour
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
 	private string conn;
     private Coroutine co;
+    private float[] AnswerTimes = new float[5];
+    private float passedTime;
 
     #endregion
     // Use this for initialization
@@ -73,6 +75,14 @@ public class FruitSi : MonoBehaviour
         showFruitsImage();
     }
     
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
+    }
+    
     IEnumerator StartRacoonHelpCounter(int i)
     {
         yield return new WaitForSeconds(6f);
@@ -101,8 +111,7 @@ public class FruitSi : MonoBehaviour
         
         if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
-            int number = PictureCounter - 1;
-            FailCounter[number]++;
+            FailCounter[PictureCounter-1]++;
             TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
             
             var tempNumber = 0;
@@ -116,6 +125,8 @@ public class FruitSi : MonoBehaviour
             
             yield break;
         }
+        passedTime = Time.time - passedTime;
+        AnswerTimes[PictureCounter-1] = passedTime;
         
         StopCoroutine(co);
         RacoonHelpObject.SetActive(false);
@@ -220,6 +231,7 @@ public class FruitSi : MonoBehaviour
     public void testFruits(int i)
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
+        passedTime = Time.time;
 
         if (i == -1)
         {
@@ -342,7 +354,14 @@ public class FruitSi : MonoBehaviour
 
         dbcmd.CommandText = sqlQuery;
         IDataReader reader = dbcmd.ExecuteReader();
-
+        
+        IDbCommand dbcmd2 = dbconn.CreateCommand();
+        sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+")";
+        dbcmd2.CommandText = sqlQuery;
+        reader = dbcmd2.ExecuteReader();
+        
+        dbcmd2.Dispose();
+        dbcmd2 = null;
         reader.Close();
         reader = null;
         dbcmd.Dispose();

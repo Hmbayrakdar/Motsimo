@@ -23,8 +23,10 @@ public class StatisticsScripts : MonoBehaviour {
     public GameObject SpecializedSearchCanvas;
     public GameObject StudentList;
     public GameObject TestTypesList;
+    public GameObject SearchTypeList,warning;
     private List<int> StuNoDropdownList = new List<int>();
     private List<string> TestTypeDropdownList = new List<string>();
+    private List<string> SearchTypeDropdownList = new List<string>();
 		
     #endregion
 
@@ -33,12 +35,25 @@ public class StatisticsScripts : MonoBehaviour {
     // Use this for initialization
     private void OnEnable()
     {
-        PlayerPrefs.SetString("TeacherEmail","hamzamelih61@hotmail.com");
+        SearchTypeDropdownList.Add("Arama Tipi");
+        SearchTypeDropdownList.Add("Yanlış Ortalaması");
+        SearchTypeDropdownList.Add("Cevaplama süresi");
+        SearchTypeList.GetComponent<Dropdown>().AddOptions(SearchTypeDropdownList);
+        //PlayerPrefs.SetString("TeacherEmail","hamzamelih61@hotmail.com");
         GridWithRows = GameObject.Find("GridWithRows");
         StartingRow = GameObject.Find("StartingRow");
         getData();
         Display();
-        FillDropDownLists();    
+        FillDropDownLists();
+        
+    }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
     }
 	
     #endregion
@@ -150,8 +165,18 @@ public class StatisticsScripts : MonoBehaviour {
 
     public void SpecializedSearch()
     {
+        if (StudentList.GetComponent<Dropdown>().value == 0 || TestTypesList.GetComponent<Dropdown>().value == 0 ||
+            SearchTypeList.GetComponent<Dropdown>().value == 0)
+        {
+            warning.transform.GetChild(0).GetComponent<Text>().text = "Ayrıntılı arama için bütün seçenekleri seçmelisiniz.";
+            warning.SetActive(true);
+            return;
+        }
+           
         PlayerPrefs.SetInt("StuNumberForBarGraph",StuNoDropdownList[StudentList.GetComponent<Dropdown>().value]);
         PlayerPrefs.SetString("TestTypeForBarGraph",TestTypeDropdownList[TestTypesList.GetComponent<Dropdown>().value]);
+        PlayerPrefs.SetInt("SearchTypeForBarGraph",SearchTypeList.GetComponent<Dropdown>().value);
+        print(PlayerPrefs.GetInt("SearchTypeForBarGraph"));
         NormalSearchCanvas.SetActive(false);
         SpecializedSearchCanvas.SetActive(true);
         
@@ -184,7 +209,6 @@ public class StatisticsScripts : MonoBehaviour {
             conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
         
-        IDbConnection dbconn;
         return (IDbConnection)new SqliteConnection("URI=file:" + conn);
     }
 
@@ -201,6 +225,7 @@ public class StatisticsScripts : MonoBehaviour {
         IDataReader reader = dbcmd.ExecuteReader();
 
         List<string> StuNoList = new List<string>();
+        StuNoList.Add("Öğrenci No");
         
         while (reader.Read())
         {
@@ -218,6 +243,7 @@ public class StatisticsScripts : MonoBehaviour {
         dbcmd2.CommandText = sqlQuery;
         reader = dbcmd2.ExecuteReader();
         
+        TestTypeDropdownList.Add("TestTürü");
         TestTypeDropdownList.Add("Hepsi");
         
         while(reader.Read())

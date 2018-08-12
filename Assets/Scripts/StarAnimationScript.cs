@@ -22,12 +22,7 @@ public class StarAnimationScript : MonoBehaviour
     public void EndAnimation()
     {
         gameObject.SetActive(false);
-    }
-
-    void Update()
-    {
-        
-    }
+    } 
 
     public void StarFunction(GameObject obj)
     {

@@ -12,15 +12,43 @@ public class TeacherRegisterScript : MonoBehaviour
 {
     public GameObject Email1, Password1, Name1, Surname1, warning;
 
-    private string conn;
+    private string conn,Email, Password, Name, Surname;
 
     public void TeacherRegisterChoice()
     {
         SceneManager.LoadScene("StudentRegisterScene");
     }
+    
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
+    }
+    private bool CheckInputs()
+    {
+        Email = Email1.GetComponent<InputField>().text;
+        Password = Password1.GetComponent<InputField>().text;
+        Name = Name1.GetComponent<InputField>().text;
+        Surname = Surname1.GetComponent<InputField>().text;
+
+        if (Email == "" || Password == "" || Name == "" || Surname == "")
+        {
+            warning.transform.GetChild(0).GetComponent<Text>().text = "Lütfen boşlukları doldurun.";
+            return false;
+        }
+        
+        return true;
+    }
 
     public void SendDataToDB()
     {
+        if (!CheckInputs())
+        {
+            warning.SetActive(true);
+            return;
+        }
         //Path to database.
         if (Application.platform == RuntimePlatform.Android)
         {
@@ -48,7 +76,7 @@ public class TeacherRegisterScript : MonoBehaviour
 
             IDbCommand dbcmd = dbconn.CreateCommand();
 
-            string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ('"+Email1.GetComponent<InputField>().text+"','"+Password1.GetComponent<InputField>().text+"','"+Name1.GetComponent<InputField>().text+"','"+Surname1.GetComponent<InputField>().text+"')";
+            string sqlQuery = "INSERT INTO Teacher (Email,Password,Name,Surname) values ('"+Email+"','"+Password+"','"+Name+"','"+Surname+"')";
             dbcmd.CommandText = sqlQuery;
             IDataReader reader = dbcmd.ExecuteReader();
 
@@ -59,6 +87,7 @@ public class TeacherRegisterScript : MonoBehaviour
             dbconn.Close();
             dbconn = null;
         }catch(Exception e){
+            print(e.StackTrace);
             warning.SetActive(true);
             //warning.transform.GetChild(0).GetComponent<Text>().text = e.Source + e.Message;
             warning.transform.GetChild(0).GetComponent<Text>().text = "Kayıt başarısız. Başka bir E-mail ile deneyin. Problem devam ederse destek isteyin.";
