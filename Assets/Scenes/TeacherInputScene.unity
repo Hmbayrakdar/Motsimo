@@ -1788,7 +1788,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: e-posta
+  m_Text: "Kullan\u0131c\u0131 Ad\u0131"
 --- !u!222 &2058828617
 CanvasRenderer:
   m_ObjectHideFlags: 0

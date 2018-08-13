@@ -80,6 +80,11 @@ public class MainScript : MonoBehaviour
             SceneManager.LoadScene("StudentRegisterScene");
     }
 
+    public void goToStoryScene()
+    {
+        SceneManager.LoadScene("StoryScene");
+    }
+
     public void goToSizeDifferenceScene()
     {
         SceneManager.LoadScene("SizeDifference");

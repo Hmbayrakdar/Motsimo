@@ -38,3 +38,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ColorsScene.unity
     guid: 71b15bbec7e2d1b45a2451a7ccf06177
+  - enabled: 1
+    path: Assets/Scenes/StoryScene.unity
+    guid: 816ae7c5a1d0f8b42bfb82efc400038b
+  - enabled: 1
+    path: Assets/Scenes/LearningFoodScene.unity
+    guid: c67a0b630f6d7b947979cadbe5566630
+  - enabled: 1
+    path: Assets/Scenes/LearningToyScene.unity
+    guid: f7217d186a335c24e9ad1e8232ad78ef
+  m_configObjects: {}

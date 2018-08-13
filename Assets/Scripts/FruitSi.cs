@@ -12,8 +12,8 @@ using System.IO;
 public class FruitSi : MonoBehaviour
 {
     #region Variables
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
-    public GameObject[] TestPictureObjects;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText,StarPanel;
+    public GameObject[] TestPictureObjects,Stars;
     public Sprite[] FruitSprites;
     public AudioSource ApplauseAudioSource;
     
@@ -23,9 +23,9 @@ public class FruitSi : MonoBehaviour
     private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
-    private string TestName = "Fruits";
+    private string TestName = "Meyveler";
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
-	private string conn;
+    private string conn;
     private Coroutine co;
     private float[] AnswerTimes = new float[5];
     private float passedTime;
@@ -79,6 +79,7 @@ public class FruitSi : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            StarAnimationScript.counp = 0;
             SceneManager.LoadScene("MainScene");
         }
     }
@@ -154,7 +155,8 @@ public class FruitSi : MonoBehaviour
 
             PictureCounter = 0;
             SendDataToDB();
-
+            AddStar();
+            StarPanel.SetActive(true);
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
@@ -201,11 +203,18 @@ public class FruitSi : MonoBehaviour
         }
         else
         {
+            if (StarAnimationScript.counp < 4)
+                testStartObject.SetActive(false);
+            else
+                testStartObject.SetActive(true);
+            
             ShowPictureObject.SetActive(false);
             Racoon.SetActive(false);
-
+            StarPanel.SetActive(true);
+            if (StarAnimationScript.counp < 5)
+                StarAnimationScript.counp++;
+            AddStar();
             restartObject.SetActive(true);
-            testStartObject.SetActive(true);
             goBackObject.SetActive(true);
 
         }
@@ -213,18 +222,22 @@ public class FruitSi : MonoBehaviour
 
     public void testStart()
     {
-        restartObject.SetActive(false);
-        testStartObject.SetActive(false);
-        goBackObject.SetActive(false);
+            restartObject.SetActive(false);
+            testStartObject.SetActive(false);
+            goBackObject.SetActive(false);
 
-        questionTextObject.SetActive(true);
-        foreach (var t in TestPictureObjects)
-        {
-            t.SetActive(true);
-        }
+            questionTextObject.SetActive(true);
+            foreach (var t in TestPictureObjects)
+            {
+                t.SetActive(true);
+            }
 
-        PictureCounter = 0;
-        testFruits(-1);
+            StarPanel.SetActive(false);
+            for (int i = 0; i < StarAnimationScript.counp; i++)
+                Stars[i].SetActive(false);
+            
+            PictureCounter = 0;
+            testFruits(-1);
     }
 
 
@@ -313,6 +326,7 @@ public class FruitSi : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        StarAnimationScript.counp = 0;
         SceneManager.LoadScene("MainScene");
     }
 
@@ -326,24 +340,24 @@ public class FruitSi : MonoBehaviour
         //Path to database.
         if (Application.platform == RuntimePlatform.Android)
         {
-			conn = Application.persistentDataPath + "/Database.db";
+            conn = Application.persistentDataPath + "/Database.db";
 
-			if(!File.Exists(conn)){
-				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
 			
-			while(!loadDB.isDone){}
+                while(!loadDB.isDone){}
 
-				File.WriteAllBytes(conn,loadDB.bytes);
-			}
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
 
         }
         else
         {
             // WINDOWS
-			conn =Application.dataPath + "/StreamingAssets/Database.db";
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
         }
 
-		IDbConnection dbconn;
+        IDbConnection dbconn;
         dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
 
         dbconn.Open(); //Open connection to the database.
@@ -369,7 +383,12 @@ public class FruitSi : MonoBehaviour
         dbconn.Close();
         dbconn = null;
     }
-
+    
+    public void AddStar()
+    {
+        for (int i = 0; i < StarAnimationScript.counp; i++)
+            Stars[i].SetActive(true);
+    }
 
     #endregion
 }

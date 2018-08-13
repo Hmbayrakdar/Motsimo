@@ -6,6 +6,7 @@ using UnityEngine.Experimental.UIElements;
 public class StarAnimationScript : MonoBehaviour
 {
 
+    public static int counp = 0;
     public GameObject StarEndAnimation, APanel;
 
     private int starCounter = 0;

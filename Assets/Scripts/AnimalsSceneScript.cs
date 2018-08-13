@@ -12,9 +12,8 @@ using Mono.Data.Sqlite; using System.Data;
 public class AnimalsSceneScript : MonoBehaviour {
 
     #region Variables
-	
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
-    public GameObject[] TestPictureObjects;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText, StarPanel;
+    public GameObject[] TestPictureObjects, Stars;
     public Sprite[] AnimalSprites;
     public AudioSource ApplauseAudioSource;
     
@@ -25,7 +24,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
-    private string TestName = "Animals";
+    private string TestName = "Hayvanlar";
     private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
     private string conn;
     private Coroutine co;
@@ -74,6 +73,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             (AudioClip)Resources.Load("Sound/Congrats/Süper"),
             (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
         };
+        
 
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
@@ -84,6 +84,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            StarAnimationScript.counp = 0;
             SceneManager.LoadScene("MainScene");
         }
     }
@@ -161,6 +162,8 @@ public class AnimalsSceneScript : MonoBehaviour {
             PictureCounter = 0;
             SendDataToDB();
 
+            AddStar();
+            StarPanel.SetActive(true);
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             goBackObject.SetActive(true);
@@ -206,11 +209,21 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
         else
         {
+            if (StarAnimationScript.counp < 4)
+                testStartObject.SetActive(false);
+            else
+                testStartObject.SetActive(true);
+            
             ShowPictureObject.SetActive(false);
             Racoon.SetActive(false);
-			
+            
+            StarPanel.SetActive(true);
+            if (StarAnimationScript.counp< 5)
+                StarAnimationScript.counp++;
+            
+            AddStar();
+            
             restartObject.SetActive(true);
-            testStartObject.SetActive(true);
             goBackObject.SetActive(true);
 
         }
@@ -218,18 +231,23 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     public void testStart()
     {
-        restartObject.SetActive(false);
-        testStartObject.SetActive(false);
-        goBackObject.SetActive(false);
         
-        questionTextObject.SetActive(true);
-        foreach (var t in TestPictureObjects)
-        {
-            t.SetActive(true);
-        }
+            restartObject.SetActive(false);
+            testStartObject.SetActive(false);
+            goBackObject.SetActive(false);
 
-        PictureCounter = 0;
-        testAnimals(-1);
+            questionTextObject.SetActive(true);
+            foreach (var t in TestPictureObjects)
+            {
+                t.SetActive(true);
+            }
+
+            StarPanel.SetActive(false);
+            for (int i = 0; i < StarAnimationScript.counp; i++)
+                Stars[i].SetActive(false);
+            PictureCounter = 0;
+            testAnimals(-1);
+        
     }
 
 
@@ -315,6 +333,8 @@ public class AnimalsSceneScript : MonoBehaviour {
 	
     public void GoToMainMenu()
     {
+        StarAnimationScript.counp = 0;
+        StarPanel.SetActive(false);
         SceneManager.LoadScene("MainScene");
     }
 
@@ -367,6 +387,11 @@ public class AnimalsSceneScript : MonoBehaviour {
         dbconn = null;
     }
 	
-
+    public void AddStar()
+    {
+        for(int i=0;i<StarAnimationScript.counp;i++)
+            Stars[i].SetActive(true);
+    }
+   
     #endregion
 }

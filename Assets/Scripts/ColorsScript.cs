@@ -10,8 +10,8 @@ public class ColorsScript : MonoBehaviour {
 
     #region Variables
 	
-    public GameObject questionTextObject,ColorsMenuObjects, ShowPictureObject, restartObject, testStartObject, ReloadSceneObject, Racoon, RacoonText;
-    public GameObject[] TestPictureObjects;
+    public GameObject questionTextObject,ColorsMenuObjects, ShowPictureObject, restartObject, testStartObject, ReloadSceneObject, Racoon, RacoonText,StarPanel ;
+    public GameObject[] TestPictureObjects,Stars;
     public AudioSource ApplauseAudioSource;
     
     private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
@@ -91,12 +91,15 @@ public class ColorsScript : MonoBehaviour {
         };
 
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
+        
+        
     }
     
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            StarAnimationScript.counp = 0;
             SceneManager.LoadScene("MainScene");
         }
     }
@@ -175,6 +178,8 @@ public class ColorsScript : MonoBehaviour {
             mixTestColorCounter[ChosenColor] = 0;
             SendDataToDB();
 
+            AddStar();
+            StarPanel.SetActive(true);
             restartObject.SetActive(true);
             testStartObject.SetActive(true);
             ReloadSceneObject.SetActive(true);
@@ -254,6 +259,7 @@ public class ColorsScript : MonoBehaviour {
                 SendDataToDBforMixTest(mixTestFailCounter[i], mixTestAnswerTimes[i],i);
             }
 
+            
             ColorsMenuObjects.SetActive(true);
             noAudioPlaying = true;
             isMixTestFinished = false;
@@ -282,6 +288,7 @@ public class ColorsScript : MonoBehaviour {
 
     public void PlaySound(int i)
     {
+        StarAnimationScript.counp = 0;
         ChosenColor = i;
         mixTestColorCounter[ChosenColor] = 0;
         if(noAudioPlaying)
@@ -307,6 +314,9 @@ public class ColorsScript : MonoBehaviour {
 
     public void ReShowImages()
     {
+        StarPanel.SetActive(false);
+        for (int i = 0; i < StarAnimationScript.counp; i++)
+            Stars[i].SetActive(false);
         restartObject.SetActive(false);
         testStartObject.SetActive(false);
         ReloadSceneObject.SetActive(false);
@@ -328,12 +338,20 @@ public class ColorsScript : MonoBehaviour {
         }
         else
         {
+            if (StarAnimationScript.counp < 4)
+                testStartObject.SetActive(false);
+            else
+                testStartObject.SetActive(true);
+            
             ShowPictureObject.SetActive(false);
             Racoon.SetActive(false);
             mixTestColorCounter[ChosenColor] = 0;
-			
+            StarPanel.SetActive(true);
+            if (StarAnimationScript.counp < 5)
+                StarAnimationScript.counp++;
+            AddStar();
             restartObject.SetActive(true);
-            testStartObject.SetActive(true);
+
             ReloadSceneObject.SetActive(true);
 
         }
@@ -341,6 +359,8 @@ public class ColorsScript : MonoBehaviour {
 
     public void testStart()
     {
+        
+        StarAnimationScript.counp = 0;
         restartObject.SetActive(false);
         testStartObject.SetActive(false);
         ReloadSceneObject.SetActive(false);
@@ -350,9 +370,15 @@ public class ColorsScript : MonoBehaviour {
         {
             t.SetActive(true);
         }
+        StarPanel.SetActive(false);
+        foreach (var t in Stars)
+        {
+            t.SetActive(false);
+        }
 
         mixTestColorCounter[ChosenColor] = 0;
         testAnimals();
+        
     }
     
     public void mixTestStart()
@@ -371,6 +397,9 @@ public class ColorsScript : MonoBehaviour {
         }
         
         isMixTestActive = true;
+        StarPanel.SetActive(false);
+        for (int i = 0; i < StarAnimationScript.counp; i++)
+            Stars[i].SetActive(false);
 
         for (int i = 0; i < 3; i++)
         {
@@ -482,6 +511,7 @@ public class ColorsScript : MonoBehaviour {
 	
     public void GoToMainMenu()
     {
+        StarAnimationScript.counp = 0;
         SceneManager.LoadScene("MainScene");
     }
     
@@ -567,6 +597,11 @@ public class ColorsScript : MonoBehaviour {
         dbconn = null;
     }
 	
+    public void AddStar()
+    {
+        for (int i = 0; i < StarAnimationScript.counp; i++)
+            Stars[i].SetActive(true);
+    }
 
     #endregion
 }

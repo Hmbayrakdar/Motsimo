@@ -12,8 +12,8 @@ public class NumbersSceneScript : MonoBehaviour {
 
 	#region Variables
 
-    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText;
-    public GameObject[] TestPictureObjects;
+    public GameObject questionTextObject, ShowPictureObject, restartObject, testStartObject, goBackObject,Racoon, RacoonText,StarPanel ;
+    public GameObject[] TestPictureObjects,Stars;
 	public AudioSource ApplauseAudioSource;
 	
 	private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
@@ -22,7 +22,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	private GameObject RacoonHelpObject;
     private int PictureCounter,randomInt;
 	private int[] FailCounter = new int[9];
-	private string TestName = "Numbers";
+	private string TestName = "Rakamlar";
 	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
 	private string conn;
 	private Coroutine co;
@@ -89,6 +89,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{
+			StarAnimationScript.counp = 0;
 			SceneManager.LoadScene("MainScene");
 		}
 	}
@@ -165,6 +166,8 @@ public class NumbersSceneScript : MonoBehaviour {
 				t.SetActive(false);
 			
 			SendDataToDB();
+			AddStar();
+			StarPanel.SetActive(true);
 			restartObject.SetActive(true);
 			testStartObject.SetActive(true);
 			goBackObject.SetActive(true);
@@ -210,11 +213,18 @@ public class NumbersSceneScript : MonoBehaviour {
 		}
 		else
 		{
+			if (StarAnimationScript.counp < 8)
+				testStartObject.SetActive(false);
+			else
+				testStartObject.SetActive(true);
+			
 			ShowPictureObject.SetActive(false);
 			Racoon.SetActive(false);
-			
+			StarPanel.SetActive(true);
+			if (StarAnimationScript.counp < 5)
+				StarAnimationScript.counp++;
+			AddStar();
 			restartObject.SetActive(true);
-			testStartObject.SetActive(true);
 			goBackObject.SetActive(true);
 			PictureCounter = 0;
 		}
@@ -222,16 +232,22 @@ public class NumbersSceneScript : MonoBehaviour {
 
 	public void startTest()
 	{
-		restartObject.SetActive(false);
-		testStartObject.SetActive(false);
-		goBackObject.SetActive(false);
-
-		foreach (var t in TestPictureObjects)
-		{
-			t.SetActive(true);
-		}
 		
-		testNumbers(UnityEngine.Random.Range(0,2));
+			restartObject.SetActive(false);
+			testStartObject.SetActive(false);
+			goBackObject.SetActive(false);
+
+			foreach (var t in TestPictureObjects)
+			{
+				t.SetActive(true);
+			}
+			
+			StarPanel.SetActive(false);
+			for(int i=0;i<StarAnimationScript.counp;i++)
+				Stars[i].SetActive(false);
+
+			testNumbers(UnityEngine.Random.Range(0, 2));
+		
 	}
 
 	public void testNumbers(int i)
@@ -336,8 +352,16 @@ public class NumbersSceneScript : MonoBehaviour {
 
     public void GoToConceptsMenu()
     {
+	    StarAnimationScript.counp = 0;
         SceneManager.LoadScene("MainScene");
     }
+	
+	public void AddStar()
+	{
+		for(int i=0;i<StarAnimationScript.counp;i++)
+			Stars[i].SetActive(true);
+	}
+	
     
     #endregion
 }

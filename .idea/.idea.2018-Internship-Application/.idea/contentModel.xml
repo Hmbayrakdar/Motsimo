@@ -10,12 +10,15 @@
           <e p="AnimalsSceneScript.cs" t="Include" />
           <e p="ColorsScript.cs" t="Include" />
           <e p="FruitSi.cs" t="Include" />
+          <e p="LearningFoodScript.cs" t="Include" />
+          <e p="LearningToyScript.cs" t="Include" />
           <e p="MainScript.cs" t="Include" />
           <e p="NumbersSceneScript.cs" t="Include" />
           <e p="RacoonHelpAnimationScript.cs" t="Include" />
           <e p="SizeDifferenceScript.cs" t="Include" />
           <e p="StarAnimationScript.cs" t="Include" />
           <e p="StatisticsScripts.cs" t="Include" />
+          <e p="StoryScript.cs" t="Include" />
           <e p="StudentRegisterScript.cs" t="Include" />
           <e p="TeacherInputScript.cs" t="Include" />
           <e p="TeacherRegisterScript.cs" t="Include" />
