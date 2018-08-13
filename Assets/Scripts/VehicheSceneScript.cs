@@ -30,7 +30,7 @@ public class VehicheSceneScript : MonoBehaviour {
     private int PictureCounter;
     private int counterP = 0;
     private int[] FailCounter = new int[5];
-    private string TestName = "Taşıtlar";
+    private string TestName = "taşıtlar";
     private string[] Vehiches = { "Tır", "Uçak", "Otobüs", "Araba", "Gemi" };
     private string[] Vehiches2 = { "Karada","Karada","Karada","Denizde","Havada"};
     private string[] CVehiches = { "TIR", "UÇAK", "OTOBÜS", "ARABA", "GEMİ" };
@@ -65,11 +65,11 @@ public class VehicheSceneScript : MonoBehaviour {
             (AudioClip)Resources.Load("Sound/Vehicles/Identify/Gemi Deniz")
         };
         
-        QuestionAudioClips2 = new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi karada gider"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi karada gider"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi karada gider"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi denizde gider"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi havada gider"),
+        QuestionAudioClips2 = new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
+            (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
+            (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
+            (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi denizde gider"),
+            (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi havada gider"),
         };
         QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi tır göster"),
             (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi uçak göster"), 
@@ -609,7 +609,7 @@ public class VehicheSceneScript : MonoBehaviour {
         IDbCommand dbcmd2 = dbconn.CreateCommand();
         if (isFirstTestFinished && isSecondTestFinished)
         {
-            sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('Araç Ortamı',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+")";
+            sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('taşıt türü',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+")";
         }
         else 
             sqlQuery = "INSERT INTO TestTimes (TestType,StuNo,q1,q2,q3,q4,q5) values ('"+TestName+"',"+PlayerPrefs.GetInt("StuNumber")+","+AnswerTimes[0]+","+AnswerTimes[1]+","+AnswerTimes[2]+","+AnswerTimes[3]+","+AnswerTimes[4]+")";

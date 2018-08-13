@@ -22,7 +22,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	private GameObject RacoonHelpObject;
     private int PictureCounter,randomInt;
 	private int[] FailCounter = new int[9];
-	private string TestName = "Rakamlar";
+	private string TestName = "rakamlar";
 	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
 	private string conn;
 	private Coroutine co;

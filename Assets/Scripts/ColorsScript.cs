@@ -23,7 +23,7 @@ public class ColorsScript : MonoBehaviour {
     private int[] FailCounter = new int[5];
     List<int[]> mixTestFailCounter = new List<int[]>(); 
     List<float[]> mixTestAnswerTimes = new List<float[]>(); 
-    private string[] TestNames = {"Kırmızı", "Mavi", "Sarı"};
+    private string[] TestNames = {"kırmızı", "mavi", "sarı"};
     private string[] RacoonTextInput = {"kırmızı", "mavi", "sarı"};
     private string conn;
     private int ChosenColor;

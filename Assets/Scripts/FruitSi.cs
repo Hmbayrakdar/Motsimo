@@ -23,7 +23,7 @@ public class FruitSi : MonoBehaviour
     private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
-    private string TestName = "Meyveler";
+    private string TestName = "meyveler";
     private string[] fruits = { "Muz", "Çilek", "Armut", "Elma", "Kiraz" };
     private string conn;
     private Coroutine co;

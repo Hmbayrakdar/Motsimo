@@ -26,51 +26,14 @@ public class Window_Graph : MonoBehaviour {
         
         valueList.Clear();
         barList.Clear();
-        
-        /*if(PlayerPrefs.GetInt("SearchTypeForBarGraph")==1)
-        {
-            if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
-            {
-                getDataAllTestTypes();
-                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
-                                                 " numaralı öğrencinin test türlerinde yaptığı ortalama yanlış sayıları";
-            }
-            else
-            {
-                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
-                                                 PlayerPrefs.GetString("TestTypeForBarGraph") +
-                                                 " testinde her sorudaki yanlış ortalamaları";
-                getDataSpecifiedTestTypes();
-            }
-        }
-        else if (PlayerPrefs.GetInt("SearchTypeForBarGraph") == 2)
-        {
-            if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
-            {
-                getDataAllTestTypes();
-                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
-                                                 " numaralı öğrencinin test türlerinde ortalama cevaplama süreleri";
-            }
-            else
-            {
-                text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
-                                                 PlayerPrefs.GetString("TestTypeForBarGraph") +
-                                                 " testinde her sorudaki cevaplama süreleri";
-                getDataSpecifiedTestTypes();
-            }
-        }*/
+
         
         if (PlayerPrefs.GetString("TestTypeForBarGraph") == "Hepsi")
         {
-            getDataAllTestTypes();
-            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
-                                             " numaralı öğrencinin test türlerinde yaptığı ortalama yanlış sayıları";
+            getDataAllTestTypes();  
         }
         else
-        {
-            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
-                                             PlayerPrefs.GetString("TestTypeForBarGraph") +
-                                             " testinde her sorudaki yanlış ortalamaları";
+        { 
             getDataSpecifiedTestTypes();
         }
 
@@ -120,12 +83,18 @@ public class Window_Graph : MonoBehaviour {
             sqlQuery =
                 "SELECT  Count(TestType),TestType,avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo =" +
                 PlayerPrefs.GetInt("StuNumberForBarGraph") + " group by TestType order by StuNo asc;";
+            
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
+                                             " numaralı öğrencinin farklı test türlerinde yaptığı ortalama yanlış sayıları";
         }
         else
         {
             sqlQuery =
                 "SELECT  Count(TestType),TestType,avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM TestTimes where StuNo =" +
                 PlayerPrefs.GetInt("StuNumberForBarGraph") + " group by TestType order by StuNo asc;";
+            
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
+                                             " numaralı öğrencinin farklı test türlerinde ortalama cevaplama süreleri";
         }
 
         dbcmd.CommandText = sqlQuery;
@@ -176,6 +145,10 @@ public class Window_Graph : MonoBehaviour {
                 "SELECT  avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM Test where StuNo =" +
                 PlayerPrefs.GetInt("StuNumberForBarGraph") + " and TestType ='" +
                 PlayerPrefs.GetString("TestTypeForBarGraph") + "'";
+            
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
+                                             PlayerPrefs.GetString("TestTypeForBarGraph") +
+                                             " testinde her sorudaki yanlış ortalamaları";
         }
         else
         {
@@ -183,6 +156,10 @@ public class Window_Graph : MonoBehaviour {
                 "SELECT  avg (q1),avg (q2),avg (q3),avg (q4),avg (q5),avg (q6),avg (q7),avg (q8),avg (q9),avg (q10) FROM TestTimes where StuNo =" +
                 PlayerPrefs.GetInt("StuNumberForBarGraph") + " and TestType ='" +
                 PlayerPrefs.GetString("TestTypeForBarGraph") + "'";
+            
+            text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
+                                             PlayerPrefs.GetString("TestTypeForBarGraph") +
+                                             " testinde her sorudaki cevaplama süreleri";
         }
 
         dbcmd.CommandText = sqlQuery;

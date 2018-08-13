@@ -26,7 +26,7 @@ public class SizeDifferenceScript : MonoBehaviour
     private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
-    private string TestName = "Büyük-Küçük";
+    private string TestName = "büyük-küçük";
     private bool SmallPictureFlag, BigPictureFlag, isTesting;
     private string conn;
     private Coroutine co;

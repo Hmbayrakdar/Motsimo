@@ -24,7 +24,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     private GameObject RacoonHelpObject;
     private int PictureCounter;
     private int[] FailCounter = new int[5];
-    private string TestName = "Hayvanlar";
+    private string TestName = "hayvanlar";
     private string[] animals = {"Balık", "İnek", "Kedi", "Köpek", "Tavşan"};
     private string conn;
     private Coroutine co;
