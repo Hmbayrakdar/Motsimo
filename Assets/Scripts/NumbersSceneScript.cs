@@ -16,14 +16,14 @@ public class NumbersSceneScript : MonoBehaviour {
     public GameObject[] TestPictureObjects,Stars;
 	public AudioSource ApplauseAudioSource;
 	
-	private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+	public AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
 	private AudioSource AudioSource;
 	private bool noAudioPlaying = true;
 	private GameObject RacoonHelpObject;
     private int PictureCounter,randomInt;
 	private int[] FailCounter = new int[9];
 	private string TestName = "rakamlar";
-	private string[] NumbersInTextForm = {"Bir", "İki", "Üç", "Dört", "Beş","Altı", "Yedi", "Sekiz", "Dokuz"};
+	private string[] NumbersInTextForm = {"bir", "iki", "üç", "dört", "beş","altı", "yedi", "sekiz", "dokuz"};
 	private string conn;
 	private Coroutine co;
 	private float[] AnswerTimes = new float[9];
@@ -52,35 +52,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	    
 	    AudioSource = gameObject.GetComponent<AudioSource>();
         
-	    IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Numbers/Identify/1"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/2"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/3"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/4"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/5"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/6"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/7"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/8"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Identify/9")
-	    };
-        
-	    QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 1 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 2 göster"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 3 göster"), 
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 4 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 5 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 6 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 7 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 8 göster"),
-		    (AudioClip)Resources.Load("Sound/Numbers/Question/Hangisi 9 göster")
-	    };
-        
-	    congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-		    (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-		    (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-		    (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-		    (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-	    };
-	    
+	    congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
 	    ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 	    showNumbers();
     }
@@ -101,6 +73,12 @@ public class NumbersSceneScript : MonoBehaviour {
 		RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
 		RacoonHelpObject.gameObject.SetActive(true);
 		RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+	}
+	
+	IEnumerator WaitUntilQuestion()
+	{
+		yield return new WaitForSeconds(AudioSource.clip.length);
+		passedTime = Time.time;
 	}
 	
 	
@@ -178,7 +156,7 @@ public class NumbersSceneScript : MonoBehaviour {
 		foreach ( var t in TestPictureObjects)
 			t.GetComponent<Text>().color  = new Color32(0,0,0,255);
         
-		testNumbers(i);
+		testNumbers();
 		noAudioPlaying = true;
 	}
     
@@ -203,7 +181,7 @@ public class NumbersSceneScript : MonoBehaviour {
 			StartCoroutine(CongratsSound(i));
 	}
 
-	public void showNumbers()
+	private void showNumbers()
 	{
 		if (PictureCounter < 9)
 		{
@@ -246,17 +224,18 @@ public class NumbersSceneScript : MonoBehaviour {
 			for(int i=0;i<StarAnimationScript.counp;i++)
 				Stars[i].SetActive(false);
 
-			testNumbers(UnityEngine.Random.Range(0, 2));
+			testNumbers();
 		
 	}
 
-	public void testNumbers(int i)
+	private void testNumbers()
 	{
 		goBackObject.SetActive(false);
 		questionTextObject.SetActive(true);
 		
 		AudioSource.clip = QuestionAudioClips[PictureCounter];
 		AudioSource.Play();
+		StartCoroutine(WaitUntilQuestion());
 
 		questionTextObject.GetComponent<Text>().text = "Hangisi " + NumbersInTextForm[PictureCounter] +" göster.";
 		PictureCounter++;
@@ -270,7 +249,6 @@ public class NumbersSceneScript : MonoBehaviour {
 		var falseAnswer = randomInt;
 
 		randomInt = UnityEngine.Random.Range(0, 2);
-		passedTime = Time.time;
 
 		switch (randomInt)
 		{
@@ -301,29 +279,7 @@ public class NumbersSceneScript : MonoBehaviour {
 	
 	public void SendDataToDB()
 	{
-		//Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-			conn = Application.persistentDataPath + "/Database.db";
-
-			if(!File.Exists(conn)){
-				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-			while(!loadDB.isDone){}
-
-				File.WriteAllBytes(conn,loadDB.bytes);
-			}
-
-        }
-        else
-        {
-            // WINDOWS
-			conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-		IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
-
+		IDbConnection dbconn = connectToDB();
 		dbconn.Open(); //Open connection to the database.
 
 		IDbCommand dbcmd = dbconn.CreateCommand();
@@ -348,13 +304,28 @@ public class NumbersSceneScript : MonoBehaviour {
 		dbconn = null;
 	}
 	
+	private IDbConnection connectToDB()
+	{
+		if (Application.platform == RuntimePlatform.Android)
+		{
+			conn = Application.persistentDataPath + "/Database.db";
 
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+				while(!loadDB.isDone){}
 
-    public void GoToConceptsMenu()
-    {
-	    StarAnimationScript.counp = 0;
-        SceneManager.LoadScene("MainScene");
-    }
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+		}
+		else
+		{
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+		}
+		return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+	}
+
 	
 	public void AddStar()
 	{

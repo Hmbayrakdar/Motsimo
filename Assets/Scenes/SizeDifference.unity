@@ -460,11 +460,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 224992146893370208, guid: b3154b55802be824cb7625d94bb42f52,
     type: 2}
   m_PrefabInternal: {fileID: 250402444}
---- !u!1 &250402446 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1109783438162690, guid: b3154b55802be824cb7625d94bb42f52,
-    type: 2}
-  m_PrefabInternal: {fileID: 250402444}
 --- !u!1 &269745443
 GameObject:
   m_ObjectHideFlags: 0
@@ -1806,7 +1801,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questionTextObject: {fileID: 1826188461}
   StarPanel: {fileID: 1181633389}
-  WarningObj: {fileID: 250402446}
   ShowPictureObjects:
   - {fileID: 1619576033}
   - {fileID: 891484455}
@@ -1829,6 +1823,13 @@ MonoBehaviour:
   - {fileID: 1634880982}
   - {fileID: 1605535577}
   ApplauseAudioSource: {fileID: 1565453005}
+  IdentificationAudioClips:
+  - {fileID: 8300000, guid: 8f82dd2a4ae0d49408d82cc7fdb7594e, type: 3}
+  - {fileID: 8300000, guid: 83ac013f5b6b6af4ebec3a47e86e519a, type: 3}
+  QuestionAudioClips:
+  - {fileID: 8300000, guid: 049a5fb35be8f9c46b3962fb20ad4da7, type: 3}
+  - {fileID: 8300000, guid: 88141c01b51df3c4f958e08de64e17d8, type: 3}
+  congratsAudioClips: []
 --- !u!4 &1565453002
 Transform:
   m_ObjectHideFlags: 0

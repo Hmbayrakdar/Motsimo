@@ -17,7 +17,7 @@ public class FruitSi : MonoBehaviour
     public Sprite[] FruitSprites;
     public AudioSource ApplauseAudioSource;
     
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    public AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
     private GameObject RacoonHelpObject;
@@ -49,27 +49,7 @@ public class FruitSi : MonoBehaviour
         
         AudioSource = gameObject.GetComponent<AudioSource>();
         
-        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Fruits/Identify/Muz"),
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Çilek"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Armut"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Elma"),
-            (AudioClip)Resources.Load("Sound/Fruits/Identify/Kiraz")
-        };
-        
-        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi muz göster"),
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi çilek göster"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi armut göster"), 
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi elma göster"),
-            (AudioClip)Resources.Load("Sound/Fruits/Question/Hangisi kiraz göster")
-        };
-        
-        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-        };
-
+        congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
         showFruitsImage();
@@ -91,6 +71,12 @@ public class FruitSi : MonoBehaviour
         RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
         RacoonHelpObject.gameObject.SetActive(true);
         RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
+    
+    IEnumerator WaitUntilQuestion()
+    {
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        passedTime = Time.time;
     }
     
     IEnumerator IdentifySound()
@@ -166,7 +152,7 @@ public class FruitSi : MonoBehaviour
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
-        testFruits(i);
+        testFruits();
         noAudioPlaying = true;
     }
     
@@ -237,48 +223,16 @@ public class FruitSi : MonoBehaviour
                 Stars[i].SetActive(false);
             
             PictureCounter = 0;
-            testFruits(-1);
+            testFruits();
     }
 
 
-    public void testFruits(int i)
+    private void testFruits()
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        passedTime = Time.time;
-
-        if (i == -1)
-        {
-            AudioSource.clip = QuestionAudioClips[PictureCounter];
-            AudioSource.Play();
-            switch (randomInteger)
-            {
-                case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(1);
-                    PictureCounter++;
-
-                    break;
-                case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + fruits[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = FruitSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(0);
-                    PictureCounter++;
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-            return;
-            
-        }
-        
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
 
         switch (randomInteger)
         {
@@ -333,33 +287,7 @@ public class FruitSi : MonoBehaviour
 
     public void SendDataToDB()
     {
-        for (var i = 0; i < FailCounter.Length; i++)
-        {
-            print(i + " " + FailCounter[i] );
-        }
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
-
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -382,6 +310,28 @@ public class FruitSi : MonoBehaviour
         dbcmd = null;
         dbconn.Close();
         dbconn = null;
+    }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
     }
     
     public void AddStar()

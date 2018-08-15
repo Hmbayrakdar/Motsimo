@@ -20,7 +20,7 @@ public class VehicheSceneScript : MonoBehaviour {
     public Sprite[] VehicheSpritesH;
     public AudioSource ApplauseAudioSource;
     
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, QuestionAudioClips2, congratsAudioClips;
+    public AudioClip[] IdentificationAudioClips, QuestionAudioClips, QuestionAudioClips2, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
     private bool isFirstTestFinished = false;
@@ -58,34 +58,17 @@ public class VehicheSceneScript : MonoBehaviour {
         
         AudioSource = gameObject.GetComponent<AudioSource>();
         
-        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/Identify/Tır Kara"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Identify/Uçak Hava"), 
-            (AudioClip)Resources.Load("Sound/Vehicles/Identify/Otobüs Kara"), 
-            (AudioClip)Resources.Load("Sound/Vehicles/Identify/Araba Kara"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Identify/Gemi Deniz")
-        };
-        
         QuestionAudioClips2 = new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
             (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
             (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi karada gider"),
             (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi denizde gider"),
             (AudioClip)Resources.Load("Sound/Vehicles/SecondTestQuestions/Hangisi havada gider"),
         };
-        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi tır göster"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi uçak göster"), 
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi otobüs göster"), 
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi araba göster"),
-            (AudioClip)Resources.Load("Sound/Vehicles/Question/Hangisi gemi göster")
-        };
         
-        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-        };
-
+        IdentificationAudioClips = Resources.LoadAll<AudioClip>("Sound/Vehicles/Identify");
+        QuestionAudioClips = Resources.LoadAll<AudioClip>("Sound/Vehicles/Question");
         
+        congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
         
         showVehicheImage();
@@ -107,6 +90,12 @@ public class VehicheSceneScript : MonoBehaviour {
         RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
         RacoonHelpObject.gameObject.SetActive(true);
         RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
+    
+    IEnumerator WaitUntilQuestion()
+    {
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        passedTime = Time.time;
     }
     
     IEnumerator IdentifySound()
@@ -165,7 +154,7 @@ public class VehicheSceneScript : MonoBehaviour {
         
         if (isFirstTestFinished && !isSecondTestFinished && PictureCounter < VehicheSprites.Length)
         {
-            testVehiche2(i);
+            testVehiche2();
             noAudioPlaying = true;
             
             foreach ( GameObject t in TestPictureObjects)
@@ -192,7 +181,7 @@ public class VehicheSceneScript : MonoBehaviour {
                 yield return new WaitForSeconds(AudioSource.clip.length);
                 gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
                 
-                testVehiche2(-1);
+                testVehiche2();
                 noAudioPlaying = true;
                 yield break;
             }
@@ -219,7 +208,7 @@ public class VehicheSceneScript : MonoBehaviour {
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
-        testVehiche(i);
+        testVehiche();
         
         noAudioPlaying = true;
     }
@@ -294,49 +283,18 @@ public class VehicheSceneScript : MonoBehaviour {
                 Stars[i].SetActive(false);
 
             PictureCounter = 0;
-            testVehiche(-1);
+            testVehiche();
         
       
     }
 
 
-    public void testVehiche(int i)
+    public void testVehiche()
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        passedTime = Time.time;
-
-        if (i == -1)
-        {
-            AudioSource.clip = QuestionAudioClips[PictureCounter];
-            AudioSource.Play();
-            switch (randomInteger)
-            {
-                case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(1);
-                    PictureCounter++;
-                    break;
-                case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(0);
-                    PictureCounter++;
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-
-            return;
-        }
-    
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
 
         switch (randomInteger)
         {
@@ -377,44 +335,13 @@ public class VehicheSceneScript : MonoBehaviour {
         co = StartCoroutine(testObjectNumber==0 ? StartRacoonHelpCounter(1) : StartRacoonHelpCounter(0));
     }
     
-    public void testVehiche2(int i)
+    public void testVehiche2()
     {
         Debug.Log(counterP);
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        passedTime = Time.time;
-
-        if (i == -1)
-        {
-            AudioSource.clip = QuestionAudioClips2[PictureCounter];
-            AudioSource.Play();
-            switch (randomInteger)
-            {
-                case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches2[0] + " Gider";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSpritesK[0];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-                    LoadRandomColorPictureToOtherObject2(1, 0);
-                    PictureCounter++;
-                    counterP++;
-                    break;
-                case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + Vehiches2[0] + " Gider";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = VehicheSpritesK[0];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-                    LoadRandomColorPictureToOtherObject2(0, 0);
-                    PictureCounter++;
-                    counterP++;
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-
-            return;
-        }
-
-        AudioSource.clip = QuestionAudioClips2[PictureCounter];
+        AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
         
         if (counterP <= 2)
         {
@@ -564,32 +491,7 @@ public class VehicheSceneScript : MonoBehaviour {
     
     public void SendDataToDB()
     {
-        for (var i = 0; i < FailCounter.Length; i++)
-        {
-            print(i + " " + FailCounter[i] );
-        }
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-        IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -625,6 +527,28 @@ public class VehicheSceneScript : MonoBehaviour {
         dbcmd = null;
         dbconn.Close();
         dbconn = null;
+    }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
     }
 
 

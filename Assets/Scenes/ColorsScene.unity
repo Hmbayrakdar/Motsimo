@@ -906,7 +906,6 @@ MonoBehaviour:
   Racoon: {fileID: 1693146461}
   RacoonText: {fileID: 520469001}
   StarPanel: {fileID: 1488750043}
-  WarningObj: {fileID: 1180386452}
   TestPictureObjects:
   - {fileID: 1914138945}
   - {fileID: 193025973}
@@ -917,6 +916,15 @@ MonoBehaviour:
   - {fileID: 2066243226}
   - {fileID: 1254614071}
   ApplauseAudioSource: {fileID: 1127897450}
+  IdentificationAudioClips:
+  - {fileID: 8300000, guid: 6e8107a9d3e144040aa5cdc394d221d1, type: 3}
+  - {fileID: 8300000, guid: f88a9b3c1ea41b34e9bc27f9db347069, type: 3}
+  - {fileID: 8300000, guid: 19d71bc89254ba14b94b481bb2770da4, type: 3}
+  QuestionAudioClips:
+  - {fileID: 8300000, guid: b8c709b37e5b76d499f1570ca6dec10e, type: 3}
+  - {fileID: 8300000, guid: f03a1518172aad94bacd4d9ad41ee2dc, type: 3}
+  - {fileID: 8300000, guid: 02821354d3e36b848b4fd4ef99c810ab, type: 3}
+  congratsAudioClips: []
 --- !u!4 &1127897447
 Transform:
   m_ObjectHideFlags: 0
@@ -1236,11 +1244,6 @@ Prefab:
 --- !u!224 &1180386451 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224992146893370208, guid: b3154b55802be824cb7625d94bb42f52,
-    type: 2}
-  m_PrefabInternal: {fileID: 1180386450}
---- !u!1 &1180386452 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1109783438162690, guid: b3154b55802be824cb7625d94bb42f52,
     type: 2}
   m_PrefabInternal: {fileID: 1180386450}
 --- !u!1 &1197556685 stripped

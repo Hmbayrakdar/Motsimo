@@ -20,7 +20,7 @@ public class SizeDifferenceScript : MonoBehaviour
     public GameObject[] TestPictureObjects;
     public AudioSource ApplauseAudioSource;
 
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    public AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
     private GameObject RacoonHelpObject;
@@ -57,27 +57,7 @@ public class SizeDifferenceScript : MonoBehaviour
 
         AudioSource = gameObject.GetComponent<AudioSource>();
 
-        IdentificationAudioClips = new AudioClip[]
-        {
-            (AudioClip) Resources.Load("Sound/Size Difference/Identify/Büyük"),
-            (AudioClip) Resources.Load("Sound/Size Difference/Identify/Küçük"),
-        };
-
-        QuestionAudioClips = new AudioClip[]
-        {
-            (AudioClip) Resources.Load("Sound/Size Difference/Question/Hangisi büyük göster"),
-            (AudioClip) Resources.Load("Sound/Size Difference/Question/Hangisi küçük göster"),
-        };
-
-        congratsAudioClips = new AudioClip[]
-        {
-            (AudioClip) Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip) Resources.Load("Sound/Congrats/Harika"),
-            (AudioClip) Resources.Load("Sound/Congrats/Mükemmel"),
-            (AudioClip) Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip) Resources.Load("Sound/Congrats/Tebrikler")
-        };
-
+        congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
         ShowPictures("small");
@@ -99,6 +79,12 @@ public class SizeDifferenceScript : MonoBehaviour
         RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
         RacoonHelpObject.gameObject.SetActive(true);
         RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 0f);
+    }
+    
+    IEnumerator WaitUntilQuestion()
+    {
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        passedTime = Time.time;
     }
 
 
@@ -170,7 +156,7 @@ public class SizeDifferenceScript : MonoBehaviour
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
         }
 
-        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
+        yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished());
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0, 5)];
         AudioSource.Play();
@@ -203,7 +189,7 @@ public class SizeDifferenceScript : MonoBehaviour
         foreach (GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color = new Color32(255, 255, 225, 255);
 
-        DifferenceTest(i);
+        DifferenceTest();
         noAudioPlaying = true;
     }
 
@@ -233,8 +219,6 @@ public class SizeDifferenceScript : MonoBehaviour
 
     public void ShowPictures(String key)
     {
-
-
         if (isTesting == true)
         {
            
@@ -252,7 +236,7 @@ public class SizeDifferenceScript : MonoBehaviour
                 TestPictureObjects[1].tag = "trueAnswer";
                 PictureCounter = 0;
 
-                DifferenceTest(-1);
+                DifferenceTest();
                 return;
             
         }
@@ -283,46 +267,12 @@ public class SizeDifferenceScript : MonoBehaviour
             ShowPictureObjects[1].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
             PictureCounter++;
             SmallPictureFlag = BigPictureFlag = false;
-
-        
     }
 
-    public void DifferenceTest(int i)
+    public void DifferenceTest()
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
-
-        passedTime = Time.time;
-        if (i == -1)
-        {
-            switch (randomInteger)
-            {
-                case 0:
-                    TestPictureObjects[0].GetComponent<RectTransform>().sizeDelta = new Vector2(200, 200);
-                    TestPictureObjects[0].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
-
-                    TestPictureObjects[1].GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-                    TestPictureObjects[1].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
-
-                    DecideQuestion(0, 1);
-
-                    break;
-                case 1:
-                    TestPictureObjects[0].GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-                    TestPictureObjects[0].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
-
-                    TestPictureObjects[1].GetComponent<RectTransform>().sizeDelta = new Vector2(200, 200);
-                    TestPictureObjects[1].GetComponent<Image>().sprite = SizeDifferenceSprites[PictureCounter];
-
-                    DecideQuestion(1, 0);
-
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-
-            return;
-        }
+        
 
         switch (randomInteger)
         {
@@ -363,6 +313,7 @@ public class SizeDifferenceScript : MonoBehaviour
 
                 AudioSource.clip = QuestionAudioClips[0];
                 AudioSource.Play();
+                StartCoroutine(WaitUntilQuestion());
 
                 questionTextObject.GetComponent<Text>().text = "Hangisi büyük göster.";
 
@@ -374,6 +325,7 @@ public class SizeDifferenceScript : MonoBehaviour
 
                 AudioSource.clip = QuestionAudioClips[1];
                 AudioSource.Play();
+                StartCoroutine(WaitUntilQuestion());
 
                 questionTextObject.GetComponent<Text>().text = "Hangisi küçük göster.";
 
@@ -397,31 +349,9 @@ public class SizeDifferenceScript : MonoBehaviour
 
     public void SendDataToDB()
     {
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
+        
 
-            if (!File.Exists(conn))
-            {
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath + "!/assets/Database.db");
-
-                while (!loadDB.isDone)
-                {
-                }
-
-                File.WriteAllBytes(conn, loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn = Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -448,6 +378,28 @@ public class SizeDifferenceScript : MonoBehaviour
         dbcmd = null;
         dbconn.Close();
         dbconn = null;
+    }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
     }
 
     public void AddStar()

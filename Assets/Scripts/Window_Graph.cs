@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +7,8 @@ using System.IO;
 using UnityEngine.SceneManagement;
 
 public class Window_Graph : MonoBehaviour {
-
+    #region variables
+    
     private RectTransform graphContainer;
     private RectTransform labelTemplateX;
     private RectTransform labelTemplateY;
@@ -17,7 +17,11 @@ public class Window_Graph : MonoBehaviour {
     private string conn;
     private List<float> valueList = new List<float>() ;
     private List<string> barList = new List<string>();
-
+    
+    #endregion
+    
+    #region functions
+    
     public void OnEnable() {
 
         graphContainer = transform.Find("graphContainer").GetComponent<RectTransform>();
@@ -281,5 +285,7 @@ public class Window_Graph : MonoBehaviour {
         rectTransform.pivot = new Vector2(.5f, 0f);
         return gameObject;
     }
+    
+    #endregion
 
 }

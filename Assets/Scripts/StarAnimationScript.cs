@@ -5,14 +5,19 @@ using UnityEngine.Experimental.UIElements;
 
 public class StarAnimationScript : MonoBehaviour
 {
-
+ #region variables
+    
     public static int counp = 0;
     public GameObject StarEndAnimation, APanel;
 
     private int starCounter = 0;
     private GameObject[] allChildren;
     private bool APanelFinished;
-
+    
+    #endregion
+    
+#region functions
+    
     public void StartAnimation()
     {
         StarEndAnimation.SetActive(true);
@@ -73,4 +78,5 @@ public class StarAnimationScript : MonoBehaviour
         return APanelFinished;
     }
 	
+    #endregion
 }

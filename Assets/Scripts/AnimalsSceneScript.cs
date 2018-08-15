@@ -17,7 +17,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     public Sprite[] AnimalSprites;
     public AudioSource ApplauseAudioSource;
     
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    public AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
 
@@ -52,29 +52,8 @@ public class AnimalsSceneScript : MonoBehaviour {
         }
         
         AudioSource = gameObject.GetComponent<AudioSource>();
-
-        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Animals/Identify/Balık"),
-            (AudioClip)Resources.Load("Sound/Animals/Identify/İnek"), 
-            (AudioClip)Resources.Load("Sound/Animals/Identify/Kedi"), 
-            (AudioClip)Resources.Load("Sound/Animals/Identify/Köpek"),
-            (AudioClip)Resources.Load("Sound/Animals/Identify/Tavşan")
-        };
         
-        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Animals/Question/Hangisi balık göster"),
-            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi inek göster"), 
-            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi kedi göster"), 
-            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi köpek göster"),
-            (AudioClip)Resources.Load("Sound/Animals/Question/Hangisi tavşan göster")
-        };
-        
-        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-        };
-        
-
+        congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
 
         showAnimalImage();
@@ -96,6 +75,12 @@ public class AnimalsSceneScript : MonoBehaviour {
         RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
         RacoonHelpObject.gameObject.SetActive(true);
         RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
+    
+    IEnumerator WaitUntilQuestion()
+    {
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        passedTime = Time.time;
     }
 
     IEnumerator IdentifySound()
@@ -173,7 +158,7 @@ public class AnimalsSceneScript : MonoBehaviour {
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
-        testAnimals(i);
+        testAnimals();
         noAudioPlaying = true;
     }
     
@@ -198,7 +183,7 @@ public class AnimalsSceneScript : MonoBehaviour {
             StartCoroutine(CongratsSound(i));
     }
 	
-    public void showAnimalImage()
+    private void showAnimalImage()
     {
         if (PictureCounter < AnimalSprites.Length)
         {
@@ -246,49 +231,17 @@ public class AnimalsSceneScript : MonoBehaviour {
             for (int i = 0; i < StarAnimationScript.counp; i++)
                 Stars[i].SetActive(false);
             PictureCounter = 0;
-            testAnimals(-1);
+            testAnimals();
         
     }
 
 
-    public void testAnimals(int i)
+    private void testAnimals()
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        passedTime = Time.time;
-        
-        if (i == -1)
-        {
-            AudioSource.clip = QuestionAudioClips[PictureCounter];
-            AudioSource.Play();
-            switch (randomInteger)
-            {
-                case 0:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                    
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-                  
-                    LoadRandomColorPictureToOtherObject(1);
-                    PictureCounter++;                   
-                    break;
-                case 1:
-                    questionTextObject.GetComponent<Text>().text = "Hangisi " + animals[PictureCounter] + " Göster";
-                    TestPictureObjects[randomInteger].GetComponent<Image>().sprite = AnimalSprites[PictureCounter];
-                    TestPictureObjects[randomInteger].tag = "trueAnswer";
-
-                    LoadRandomColorPictureToOtherObject(0);
-                    PictureCounter++; 
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-
-            return;
-        }
-
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
         
         switch (randomInteger)
         {
@@ -340,29 +293,7 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     public void SendDataToDB()
     {
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
-
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -385,6 +316,28 @@ public class AnimalsSceneScript : MonoBehaviour {
         dbcmd = null;
         dbconn.Close();
         dbconn = null;
+    }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
     }
 	
     public void AddStar()

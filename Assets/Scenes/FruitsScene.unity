@@ -482,7 +482,6 @@ MonoBehaviour:
   Racoon: {fileID: 203072760}
   RacoonText: {fileID: 1171583386}
   StarPanel: {fileID: 753653081}
-  WarningObj: {fileID: 1054426521}
   TestPictureObjects:
   - {fileID: 1182831079}
   - {fileID: 1031224034}
@@ -499,6 +498,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d5d463f03493eb64fb70ac6925e3885b, type: 3}
   - {fileID: 21300000, guid: 8aeb1cd5605c4b94da614d3ff570fc36, type: 3}
   ApplauseAudioSource: {fileID: 344444324}
+  IdentificationAudioClips:
+  - {fileID: 8300000, guid: 9ab4f95adce2a6245b4cc2f2d3d76539, type: 3}
+  - {fileID: 8300000, guid: 3b249e6caa5c7a94abde57b6b6311562, type: 3}
+  - {fileID: 8300000, guid: c2aa02816ff4c7448bc9cae4bf39f978, type: 3}
+  - {fileID: 8300000, guid: ec03974262db4844fb2540b800a1ec5e, type: 3}
+  - {fileID: 8300000, guid: e3f16a2351c2f4949999fb5df5e02a6f, type: 3}
+  QuestionAudioClips:
+  - {fileID: 8300000, guid: 16267863af1267146bce897810325a9d, type: 3}
+  - {fileID: 8300000, guid: 41049f35db81d2448accf078300f9249, type: 3}
+  - {fileID: 8300000, guid: d236a5a0edc843e45be1c5a1a070a30d, type: 3}
+  - {fileID: 8300000, guid: 2e6eed1b472647046a327ed13ce4629b, type: 3}
+  - {fileID: 8300000, guid: 914a2ca0d821895489be0bd4a4d7ee73, type: 3}
+  congratsAudioClips: []
 --- !u!82 &344444322
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1288,11 +1300,6 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1031224034}
   m_CullTransparentMesh: 0
---- !u!1 &1054426521 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1109783438162690, guid: b3154b55802be824cb7625d94bb42f52,
-    type: 2}
-  m_PrefabInternal: {fileID: 1470016296}
 --- !u!224 &1054426522 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224992146893370208, guid: b3154b55802be824cb7625d94bb42f52,

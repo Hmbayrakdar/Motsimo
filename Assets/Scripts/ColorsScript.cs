@@ -14,7 +14,7 @@ public class ColorsScript : MonoBehaviour {
     public GameObject[] TestPictureObjects,Stars;
     public AudioSource ApplauseAudioSource;
     
-    private AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
+    public AudioClip[] IdentificationAudioClips, QuestionAudioClips, congratsAudioClips;
     private AudioSource AudioSource;
     private bool noAudioPlaying = true;
     private GameObject RacoonHelpObject;
@@ -55,7 +55,6 @@ public class ColorsScript : MonoBehaviour {
             mixTestColorCounter[i] = 0; 
         }
         
-        
         for (int i = 0; i < 3; i++)
         {
             mixTestFailCounter.Add(new int[5]);
@@ -73,26 +72,8 @@ public class ColorsScript : MonoBehaviour {
         ColorSprites[1] = Resources.LoadAll<Sprite>("Pictures/Mavi");
         ColorSprites[2] = Resources.LoadAll<Sprite>("Pictures/Sarı");
 
-        IdentificationAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Identify/Kırmızı"),
-            (AudioClip)Resources.Load("Sound/Colors/Identify/Mavi"), 
-            (AudioClip)Resources.Load("Sound/Colors/Identify/Sarı")
-        };
-        
-        QuestionAudioClips =  new AudioClip[]{(AudioClip)Resources.Load("Sound/Colors/Question/Hangisi kırmızı göster"),
-            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi mavi göster"), 
-            (AudioClip)Resources.Load("Sound/Colors/Question/Hangisi sarı göster")
-        };
-        
-        congratsAudioClips = new AudioClip[]{(AudioClip)Resources.Load("Sound/Congrats/Böyle devam"),
-            (AudioClip)Resources.Load("Sound/Congrats/Harika"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Mükemmel"), 
-            (AudioClip)Resources.Load("Sound/Congrats/Süper"),
-            (AudioClip)Resources.Load("Sound/Congrats/Tebrikler")
-        };
-
+        congratsAudioClips = Resources.LoadAll<AudioClip>("Sound/Congrats");
         ApplauseAudioSource.clip = (AudioClip) Resources.Load("Sound/applause");
-        
-        
     }
     
     void Update()
@@ -111,6 +92,12 @@ public class ColorsScript : MonoBehaviour {
         RacoonHelpObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100f);
         RacoonHelpObject.gameObject.SetActive(true);
         RacoonHelpObject.GetComponent<RectTransform>().localScale = new Vector3(1.0f,1.0f,0f);
+    }
+
+    IEnumerator WaitUntilQuestion()
+    {
+        yield return new WaitForSeconds(AudioSource.clip.length);
+        passedTime = Time.time;
     }
 
     IEnumerator IdentifySound()
@@ -324,7 +311,7 @@ public class ColorsScript : MonoBehaviour {
         Racoon.SetActive(true);
         showAnimalImage();
     }
-    public void showAnimalImage()
+    private void showAnimalImage()
     {
         ColorsMenuObjects.SetActive(false);
         ShowPictureObject.SetActive(true);
@@ -357,7 +344,7 @@ public class ColorsScript : MonoBehaviour {
         }
     }
 
-    public void testStart()
+    private void testStart()
     {
         
         StarAnimationScript.counp = 0;
@@ -381,7 +368,7 @@ public class ColorsScript : MonoBehaviour {
         
     }
     
-    public void mixTestStart()
+    private void mixTestStart()
     {
         ColorsMenuObjects.SetActive(false);
         
@@ -418,10 +405,9 @@ public class ColorsScript : MonoBehaviour {
     {
         var randomInteger = UnityEngine.Random.Range(0, 2);
         
-        passedTime = Time.time;
-
         AudioSource.clip = QuestionAudioClips[ChosenColor];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
         
         switch (randomInteger)
         {
@@ -458,10 +444,9 @@ public class ColorsScript : MonoBehaviour {
 
 
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        passedTime = Time.time;
-
         AudioSource.clip = QuestionAudioClips[ChosenColor];
         AudioSource.Play();
+        StartCoroutine(WaitUntilQuestion());
         
         switch (randomInteger)
         {
@@ -485,8 +470,6 @@ public class ColorsScript : MonoBehaviour {
                 Debug.Log("Unexpected random integer.");
                 break;
         }
-
-        
     }
 
     
@@ -542,8 +525,6 @@ public class ColorsScript : MonoBehaviour {
     private void SendDataToDB()
     {
         IDbConnection dbconn = connectToDB();
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
-
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -596,6 +577,8 @@ public class ColorsScript : MonoBehaviour {
         dbconn.Close();
         dbconn = null;
     }
+    
+    
 	
     public void AddStar()
     {

@@ -730,7 +730,6 @@ MonoBehaviour:
   Racoon: {fileID: 1875324050}
   RacoonText: {fileID: 29542790}
   StarPanel: {fileID: 640727868}
-  WarningObj: {fileID: 1506070336}
   TestPictureObjects:
   - {fileID: 108473261}
   - {fileID: 2126902983}
@@ -741,6 +740,27 @@ MonoBehaviour:
   - {fileID: 1595934467}
   - {fileID: 401536333}
   ApplauseAudioSource: {fileID: 503131937}
+  IdentificationAudioClips:
+  - {fileID: 8300000, guid: 6e493d19711e3ea46a1937f1f8e87f3a, type: 3}
+  - {fileID: 8300000, guid: 09d4411a3f1c66941977d1bcc1910c23, type: 3}
+  - {fileID: 8300000, guid: 895f9bb08b5f9f440892218df8081422, type: 3}
+  - {fileID: 8300000, guid: 3e262fc012d79f9478d92a892da22b41, type: 3}
+  - {fileID: 8300000, guid: 192f68aa04ba86f4898d2458af927d27, type: 3}
+  - {fileID: 8300000, guid: 733d549b0e98ea0459f81b6e49556004, type: 3}
+  - {fileID: 8300000, guid: 44523e761454a6f488b6fd6a24fcc46f, type: 3}
+  - {fileID: 8300000, guid: d2fd596a20c47ee4e813b90a67f9ccef, type: 3}
+  - {fileID: 8300000, guid: d95516db6c8d55d4482fcd2ef5bd82d4, type: 3}
+  QuestionAudioClips:
+  - {fileID: 8300000, guid: 002299cc086e0f941956bdf718350300, type: 3}
+  - {fileID: 8300000, guid: fbe1702aaa4797248835874c089ac5c9, type: 3}
+  - {fileID: 8300000, guid: 73d0c6cfa9ea3384ea2908570f9e6fb8, type: 3}
+  - {fileID: 8300000, guid: d6afad2c02ba4b347ab7ec50610e40fd, type: 3}
+  - {fileID: 8300000, guid: 5cec400435390704fb1b9131dcd19758, type: 3}
+  - {fileID: 8300000, guid: ab4a11c31fc32f047b60f2206eaf6647, type: 3}
+  - {fileID: 8300000, guid: 1ee1761b9edeb6d44a48969e69276a89, type: 3}
+  - {fileID: 8300000, guid: f1643e06edee42a49bfee3d698d9bf7b, type: 3}
+  - {fileID: 8300000, guid: a37cfe71be797c8418ba126dee639c02, type: 3}
+  congratsAudioClips: []
 --- !u!4 &503131934
 Transform:
   m_ObjectHideFlags: 0
@@ -2191,7 +2211,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 40
+    m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -2498,11 +2518,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1920245872900724, guid: fe5a20f06b39ea345ad71a32748a6427,
     type: 2}
   m_PrefabInternal: {fileID: 1274198095}
---- !u!1 &1506070336 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1109783438162690, guid: b3154b55802be824cb7625d94bb42f52,
-    type: 2}
-  m_PrefabInternal: {fileID: 604463385}
 --- !u!224 &1506070337 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224992146893370208, guid: b3154b55802be824cb7625d94bb42f52,
