@@ -25,8 +25,7 @@ ExportedObj/
 *.opendb
 
 # Unity3D generated meta files
-*.pidb.meta
-*.pdb.meta
+
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
@@ -37,10 +36,6 @@ sysinfo.txt
 2018-Internship-Application.sln
 .idea/.idea.2018-Internship-Application/.idea/workspace.xml
 <<<<<<< HEAD
-Assets/Standard Assets/Editor.meta
-ProjectSettings/ProjectVersion.txt
-Assets/Standard Assets/Editor.meta
-ProjectSettings/ProjectVersion.txt
-Assets/Standard Assets.meta
+
 =======
 >>>>>>> parent of 10a16c5... Ignore Files
