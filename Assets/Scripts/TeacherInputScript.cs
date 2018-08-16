@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 public class TeacherInputScript : MonoBehaviour
 {
+	#region variables
 
     public GameObject email;
     public GameObject password;
@@ -24,6 +25,10 @@ public class TeacherInputScript : MonoBehaviour
 
     private string conn;
 	
+	#endregion
+	
+	#region functions
+	
 	void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Escape))
@@ -34,29 +39,8 @@ public class TeacherInputScript : MonoBehaviour
 
     public void Login()
     {
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-			conn = Application.persistentDataPath + "/Database.db";
-
-			if(!File.Exists(conn)){
-				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-			while(!loadDB.isDone){}
-
-				File.WriteAllBytes(conn,loadDB.bytes);
-			}
-
-        }
-        else
-        {
-            // WINDOWS
-			conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
 		try{
-        IDbConnection dbconn;
-        dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
 
         IDbCommand dbcmd = dbconn.CreateCommand();
@@ -104,6 +88,28 @@ public class TeacherInputScript : MonoBehaviour
         }
 
     }
+	
+	private IDbConnection connectToDB()
+	{
+		if (Application.platform == RuntimePlatform.Android)
+		{
+			conn = Application.persistentDataPath + "/Database.db";
+
+			if(!File.Exists(conn)){
+				WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+				while(!loadDB.isDone){}
+
+				File.WriteAllBytes(conn,loadDB.bytes);
+			}
+
+		}
+		else
+		{
+			conn =Application.dataPath + "/StreamingAssets/Database.db";
+		}
+		return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+	}
 
     public void Register()
     {
@@ -114,4 +120,6 @@ public class TeacherInputScript : MonoBehaviour
 	{
 		SceneManager.LoadScene("MainScene");
 	}
+	
+	#endregion
 }

@@ -4,12 +4,24 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class RacoonHelpAnimationScript : MonoBehaviour {
+    #region Variables
 
+    
+
+    
     private Sprite[] RacoonSprites;
 
     private Image ImageComp;
 
     private bool flag;
+    
+    #endregion
+
+    #region Unity callbacks
+
+    
+
+    
     // Use this for initialization
     private void Awake()
     {
@@ -52,4 +64,5 @@ public class RacoonHelpAnimationScript : MonoBehaviour {
     {
         flag = false;
     }
+    #endregion
 }

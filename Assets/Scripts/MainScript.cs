@@ -15,7 +15,7 @@ public class MainScript : MonoBehaviour
 {
     #region Variables
     
-    public GameObject MenuPanel;
+    //public GameObject MenuPanel;
 
     public AudioSource backGroundMusic;
     

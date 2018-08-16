@@ -13,6 +13,8 @@ using System.Runtime.InteropServices;
 
 public class StudentRegisterScript : MonoBehaviour
 {
+    #region Variables
+  
     public GameObject StudentRegister;
     public GameObject StudentSelect,StuName,StuSurname,StuNo,warning, StuNoButtonPrefab;
 	
@@ -23,6 +25,10 @@ public class StudentRegisterScript : MonoBehaviour
     private int numberOfResults = 0;
     private string conn;
     public ToggleGroup StudentToggles;
+    
+    #endregion
+
+    #region functions
 
     void Start()
     {
@@ -42,12 +48,10 @@ public class StudentRegisterScript : MonoBehaviour
 	
     public void Play()
     {
-        if (PlayerPrefs.GetInt("StuNumber") > 0)
-        {
-            StudentSelect.SetActive(true);
-            StudentRegister.SetActive(false);
-            SceneManager.LoadScene("MainScene");
-        }
+        if (PlayerPrefs.GetInt("StuNumber") <= 0) return;
+        StudentSelect.SetActive(true);
+        StudentRegister.SetActive(false);
+        SceneManager.LoadScene("MainScene");
     }
     public void NewStudent()
     {
@@ -91,33 +95,11 @@ public class StudentRegisterScript : MonoBehaviour
             warning.SetActive(true);
             return;
         }
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if (!File.Exists(conn))
-            {
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath + "!/assets/Database.db");
-
-                while (!loadDB.isDone)
-                {
-                }
-
-                File.WriteAllBytes(conn, loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn = Application.dataPath + "/StreamingAssets/Database.db";
-        }
+        
 
         try
         {
-            IDbConnection dbconn;
-            dbconn = (IDbConnection) new SqliteConnection("URI=file:" + conn);
+            IDbConnection dbconn = connectToDB();
             dbconn.Open(); //Open connection to the database.
 
             IDbCommand dbcmd = dbconn.CreateCommand();
@@ -150,30 +132,9 @@ public class StudentRegisterScript : MonoBehaviour
         warning.transform.GetChild(0).GetComponent<Text>().text ="Kayıt başarılı!";
     }
 
-    public void getData()
+    private void getData()
     {
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
-        IDbConnection dbconn;
-        dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
+        IDbConnection dbconn = connectToDB();
         dbconn.Open(); //Open connection to the database.
         IDbCommand dbcmd = dbconn.CreateCommand();
         IDbCommand dbcmd2 = dbconn.CreateCommand();
@@ -218,8 +179,30 @@ public class StudentRegisterScript : MonoBehaviour
         dbconn.Close();
         dbconn = null;
     }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+    }
 	
-    public void Display()
+    private void Display()
     {
         var i = 0;
 
@@ -254,6 +237,8 @@ public class StudentRegisterScript : MonoBehaviour
             PlayerPrefs.SetInt("StuNumber", Int32.Parse(chosenStuNo));
         }
     }
+    
+    #endregion
     
 
 }

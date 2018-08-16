@@ -10,9 +10,15 @@ using System.IO;
 
 public class TeacherRegisterScript : MonoBehaviour
 {
+#region Variables
+
     public GameObject Email1, Password1, Name1, Surname1, warning;
 
     private string conn,Email, Password, Name, Surname;
+    
+    #endregion
+    
+    #region functions
 
     public void TeacherRegisterChoice()
     {
@@ -49,29 +55,9 @@ public class TeacherRegisterScript : MonoBehaviour
             warning.SetActive(true);
             return;
         }
-        //Path to database.
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            conn = Application.persistentDataPath + "/Database.db";
-
-            if(!File.Exists(conn)){
-                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
-			
-                while(!loadDB.isDone){}
-
-                File.WriteAllBytes(conn,loadDB.bytes);
-            }
-
-        }
-        else
-        {
-            // WINDOWS
-            conn =Application.dataPath + "/StreamingAssets/Database.db";
-        }
-
+        
         try{
-            IDbConnection dbconn;
-            dbconn = (IDbConnection)new SqliteConnection("URI=file:" + conn);
+            IDbConnection dbconn = connectToDB();
             dbconn.Open(); //Open connection to the database.
 
             IDbCommand dbcmd = dbconn.CreateCommand();
@@ -100,10 +86,34 @@ public class TeacherRegisterScript : MonoBehaviour
 
         //SceneManager.LoadScene("StudentRegisterScene");
     }
+    
+    private IDbConnection connectToDB()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            conn = Application.persistentDataPath + "/Database.db";
+
+            if(!File.Exists(conn)){
+                WWW loadDB = new WWW("jar:file://" + Application.dataPath+ "!/assets/Database.db");
+			
+                while(!loadDB.isDone){}
+
+                File.WriteAllBytes(conn,loadDB.bytes);
+            }
+
+        }
+        else
+        {
+            conn =Application.dataPath + "/StreamingAssets/Database.db";
+        }
+        return (IDbConnection)new SqliteConnection("URI=file:" + conn);
+    }
 
     public void goBackToTeacherLoginScreen()
     {
         SceneManager.LoadScene("TeacherInputScene");
     }
+    
+    #endregion
 
 }

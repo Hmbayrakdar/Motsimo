@@ -14,9 +14,11 @@ using System.IO;
 
 public class StoryScript : MonoBehaviour {
 
+    #region functions
 
+    
 
-
+   
     public void goToLearningFoodScene()
     {
         SceneManager.LoadScene("LearningFoodScene");
@@ -39,5 +41,7 @@ public class StoryScript : MonoBehaviour {
     {
         SceneManager.LoadScene("MainScene");
     }
+    
+    #endregion
   
 }
