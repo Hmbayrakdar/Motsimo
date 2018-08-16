@@ -152,31 +152,28 @@ public class VehicheSceneScript : MonoBehaviour {
         {
             testVehiche2();
             noAudioPlaying = true;
-            
-            foreach ( GameObject t in TestPictureObjects)
-                t.GetComponent<Image>().color  = new Color32(255,255,225,255);
-            
             yield break;
         }
-        
+
         if (PictureCounter >= VehicheSprites.Length)
         {
             if (!isFirstTestFinished && !isSecondTestFinished)
             {
                 isFirstTestFinished = true;
                 PictureCounter = 0;
-               
-                
+
+
                 gameObject.GetComponent<StarAnimationScript>().StarFunction();
-                
-                
-                yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
-                AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
+
+
+                yield return new WaitUntil(() =>
+                    gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
+                AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0, 5)];
                 AudioSource.Play();
                 ApplauseAudioSource.Play();
                 yield return new WaitForSeconds(AudioSource.clip.length);
                 gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
-                
+
                 testVehiche2();
                 noAudioPlaying = true;
                 yield break;
@@ -190,7 +187,7 @@ public class VehicheSceneScript : MonoBehaviour {
             questionTextObject.SetActive(false);
 
             PictureCounter = 0;
-            
+
             SendDataToDB();
 
             AddStar();
@@ -201,9 +198,7 @@ public class VehicheSceneScript : MonoBehaviour {
             noAudioPlaying = true;
             yield break;
         }
-        foreach ( GameObject t in TestPictureObjects)
-            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
-        
+
         testVehiche();
         
         noAudioPlaying = true;
@@ -262,24 +257,24 @@ public class VehicheSceneScript : MonoBehaviour {
     public void testStart()
     {
         
-            restartObject.SetActive(false);
-            testStartObject.SetActive(false);
-            goBackObject.SetActive(false);
+        restartObject.SetActive(false);
+        testStartObject.SetActive(false);
+        goBackObject.SetActive(false);
 
-            questionTextObject.SetActive(true);
-            foreach (var t in TestPictureObjects)
-            {
-                t.SetActive(true);
-            }
+        questionTextObject.SetActive(true);
+        foreach (var t in TestPictureObjects)
+        {
+            t.SetActive(true);
+        }
 
-            isFirstTestFinished = false;
-            isSecondTestFinished = false;
-            StarPanel.SetActive(false);
-            for(int i=0;i<StarAnimationScript.counp;i++)
-                Stars[i].SetActive(false);
+        isFirstTestFinished = false;
+        isSecondTestFinished = false;
+        StarPanel.SetActive(false);
+        for(int i=0;i<StarAnimationScript.counp;i++)
+            Stars[i].SetActive(false);
 
-            PictureCounter = 0;
-            testVehiche();
+        PictureCounter = 0;
+        testVehiche();
         
       
     }
@@ -287,6 +282,9 @@ public class VehicheSceneScript : MonoBehaviour {
 
     public void testVehiche()
     {
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+        
         var randomInteger = UnityEngine.Random.Range(0, 2);
         AudioSource.clip = QuestionAudioClips[PictureCounter];
         AudioSource.Play();
@@ -333,7 +331,9 @@ public class VehicheSceneScript : MonoBehaviour {
     
     public void testVehiche2()
     {
-        Debug.Log(counterP);
+        foreach ( GameObject t in TestPictureObjects)
+            t.GetComponent<Image>().color  = new Color32(255,255,225,255);
+        
         var randomInteger = UnityEngine.Random.Range(0, 2);
         AudioSource.clip = QuestionAudioClips2[PictureCounter];
         AudioSource.Play();
