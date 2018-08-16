@@ -669,7 +669,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b73398b1fc5ead4abfaccf1373bb3fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MenuPanel: {fileID: 25892161}
   backGroundMusic: {fileID: 677664336}
   loggedInText: {fileID: 1332865239}
 --- !u!4 &677664335
@@ -1526,7 +1525,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 6eb6c2ac473e98b42a95903f2d80e2a3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 79bc131a35356244784912d36855c118, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

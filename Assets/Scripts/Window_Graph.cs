@@ -98,7 +98,7 @@ public class Window_Graph : MonoBehaviour {
                 PlayerPrefs.GetInt("StuNumberForBarGraph") + " group by TestType order by StuNo asc;";
             
             text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") +
-                                             " numaralı öğrencinin farklı test türlerinde ortalama cevaplama süreleri";
+                                             " numaralı öğrencinin farklı test türlerinde saniye olarak ortalama cevaplama süreleri";
         }
 
         dbcmd.CommandText = sqlQuery;
@@ -163,7 +163,7 @@ public class Window_Graph : MonoBehaviour {
             
             text.GetComponent<Text>().text = PlayerPrefs.GetInt("StuNumberForBarGraph") + " numaralı öğrencinin " +
                                              PlayerPrefs.GetString("TestTypeForBarGraph") +
-                                             " testinde her sorudaki cevaplama süreleri";
+                                             " testinde saniye olarak her sorudaki cevaplama süreleri";
         }
 
         dbcmd.CommandText = sqlQuery;
