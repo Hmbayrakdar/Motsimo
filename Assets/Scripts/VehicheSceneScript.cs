@@ -113,9 +113,6 @@ public class VehicheSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-        
         if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             int number = PictureCounter - 1;
@@ -141,9 +138,8 @@ public class VehicheSceneScript : MonoBehaviour {
         noAudioPlaying = false;
         
         if (PictureCounter < VehicheSprites.Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
+        
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
@@ -229,7 +225,7 @@ public class VehicheSceneScript : MonoBehaviour {
     
     public void PlayCongrats(int i)
     {
-        if(noAudioPlaying)
+        if(noAudioPlaying && !AudioSource.isPlaying)
             StartCoroutine(CongratsSound(i));
     }
 
@@ -339,7 +335,7 @@ public class VehicheSceneScript : MonoBehaviour {
     {
         Debug.Log(counterP);
         var randomInteger = UnityEngine.Random.Range(0, 2);
-        AudioSource.clip = QuestionAudioClips[PictureCounter];
+        AudioSource.clip = QuestionAudioClips2[PictureCounter];
         AudioSource.Play();
         StartCoroutine(WaitUntilQuestion());
         
@@ -425,65 +421,75 @@ public class VehicheSceneScript : MonoBehaviour {
     
     private void LoadRandomColorPictureToOtherObject2(int TestObjectNumber,int TestSelect)
     {
-        if (TestSelect == 0)
+        switch (TestSelect)
         {
-            var randomInt = UnityEngine.Random.Range(0,2);
-
-            switch (randomInt)
+            case 0:
             {
-                case 0:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesH[0];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                case 1:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesD[0];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
+                var randomInt = UnityEngine.Random.Range(0,2);
+
+                switch (randomInt)
+                {
+                    case 0:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesH[0];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    case 1:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesD[0];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    default:
+                        Debug.Log("Unexpected random integer.");
+                        break;
+                }
+
+                break;
+            }
+            case 1:
+            {
+                var randomInt = UnityEngine.Random.Range(0, 2);
+                var randomInteger = UnityEngine.Random.Range(0,3);
+
+                switch (randomInt)
+                {
+                    case 0:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesK[randomInteger];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    case 1:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesH[0];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    default:
+                        Debug.Log("Unexpected random integer.");
+                        break;
+                }
+
+                break;
+            }
+            case 2:
+            {
+                var randomInt = UnityEngine.Random.Range(0, 2);
+                var randomInteger = UnityEngine.Random.Range(0,3);
+
+                switch (randomInt)
+                {
+                    case 0:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesK[randomInteger];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    case 1:
+                        TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesD[0];
+                        TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
+                        break;
+                    default:
+                        Debug.Log("Unexpected random integer.");
+                        break;
+                }
+
+                break;
             }
         }
-        if (TestSelect == 1)
-        {
-            var randomInt = UnityEngine.Random.Range(0, 2);
-            var randomInteger = UnityEngine.Random.Range(0,3);
 
-            switch (randomInt)
-            {
-                case 0:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesK[randomInteger];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                case 1:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesH[0];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-        }
-        if (TestSelect == 2)
-        {
-            var randomInt = UnityEngine.Random.Range(0, 2);
-            var randomInteger = UnityEngine.Random.Range(0,3);
-
-            switch (randomInt)
-            {
-                case 0:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesK[randomInteger];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                case 1:
-                    TestPictureObjects[TestObjectNumber].GetComponent<Image>().sprite = VehicheSpritesD[0];
-                    TestPictureObjects[TestObjectNumber].tag = "falseAnswer";
-                    break;
-                default:
-                    Debug.Log("Unexpected random integer.");
-                    break;
-            }
-        } 
         co = StartCoroutine(TestObjectNumber==0 ? StartRacoonHelpCounter(1) : StartRacoonHelpCounter(0));
     }
 

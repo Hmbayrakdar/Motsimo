@@ -96,9 +96,6 @@ public class NumbersSceneScript : MonoBehaviour {
     
 	IEnumerator CongratsSound(int i)
 	{
-		if (AudioSource.isPlaying)
-			yield break;
-		
 		if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
 			FailCounter[PictureCounter-1]++;
 			TestPictureObjects[i].GetComponent<Text>().color  = new Color32(0,0,0,100);
@@ -123,9 +120,7 @@ public class NumbersSceneScript : MonoBehaviour {
 		noAudioPlaying = false;
 		
 		if (PictureCounter < 9)
-		{
 			gameObject.GetComponent<StarAnimationScript>().StarFunction();
-		}
 
 		yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
         
@@ -177,7 +172,7 @@ public class NumbersSceneScript : MonoBehaviour {
     
 	public void PlayCongrats(int i)
 	{
-		if(noAudioPlaying)
+		if(noAudioPlaying && !AudioSource.isPlaying)
 			StartCoroutine(CongratsSound(i));
 	}
 

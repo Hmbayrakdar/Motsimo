@@ -123,9 +123,6 @@ public class SizeDifferenceScript : MonoBehaviour
 
     IEnumerator CongratsSound(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-
         if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             FailCounter[PictureCounter - 1]++;
@@ -152,9 +149,7 @@ public class SizeDifferenceScript : MonoBehaviour
         noAudioPlaying = false;
 
         if (PictureCounter < SizeDifferenceSprites.Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
 
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished());
 
@@ -213,7 +208,7 @@ public class SizeDifferenceScript : MonoBehaviour
 
     public void PlayCongrats(int i)
     {
-        if (noAudioPlaying)
+        if (noAudioPlaying && !AudioSource.isPlaying)
             StartCoroutine(CongratsSound(i));
     }
 

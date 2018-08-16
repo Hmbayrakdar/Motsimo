@@ -93,9 +93,6 @@ public class FruitSi : MonoBehaviour
 
     IEnumerator CongratsSound(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-        
         if (!TestPictureObjects[i].CompareTag("trueAnswer"))
         {
             FailCounter[PictureCounter-1]++;
@@ -120,9 +117,8 @@ public class FruitSi : MonoBehaviour
         noAudioPlaying = false;
 
         if (PictureCounter < FruitSprites.Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
+
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
         
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
@@ -130,7 +126,6 @@ public class FruitSi : MonoBehaviour
         ApplauseAudioSource.Play();
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
-        
         
         if (PictureCounter >= FruitSprites.Length)
         {
@@ -173,7 +168,7 @@ public class FruitSi : MonoBehaviour
     
     public void PlayCongrats(int i)
     {
-        if(noAudioPlaying)
+        if(noAudioPlaying && !AudioSource.isPlaying)
             StartCoroutine(CongratsSound(i));
     }
     

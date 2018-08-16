@@ -114,9 +114,6 @@ public class ColorsScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-        
         if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
             FailCounter[mixTestColorCounter[ChosenColor]-1]++;
             TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
@@ -140,10 +137,8 @@ public class ColorsScript : MonoBehaviour {
         noAudioPlaying = false;
         
         if (mixTestColorCounter[ChosenColor] < ColorSprites[ChosenColor].Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
-        
+
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
         AudioSource.clip = congratsAudioClips[UnityEngine.Random.Range(0,5)];
@@ -152,7 +147,6 @@ public class ColorsScript : MonoBehaviour {
         yield return new WaitForSeconds(AudioSource.clip.length);
         gameObject.GetComponent<StarAnimationScript>().deactivateAPanel();
 
-        
         if (mixTestColorCounter[ChosenColor] >= ColorSprites[ChosenColor].Length)
         {
             gameObject.GetComponent<StarAnimationScript>().StarEndAnimation.GetComponent<AudioSource>().clip =
@@ -176,7 +170,6 @@ public class ColorsScript : MonoBehaviour {
             yield break;
         }
         
-
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
@@ -187,9 +180,6 @@ public class ColorsScript : MonoBehaviour {
     
     IEnumerator CongratsSoundMixTest(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-        
         if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
             TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
 
@@ -214,9 +204,7 @@ public class ColorsScript : MonoBehaviour {
         noAudioPlaying = false;
         
         if (mixTestColorCounter[ChosenColor] <= ColorSprites[ChosenColor].Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
         
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
@@ -246,7 +234,6 @@ public class ColorsScript : MonoBehaviour {
                 SendDataToDBforMixTest(mixTestFailCounter[i], mixTestAnswerTimes[i],i);
             }
 
-            
             ColorsMenuObjects.SetActive(true);
             noAudioPlaying = true;
             isMixTestFinished = false;
@@ -257,9 +244,7 @@ public class ColorsScript : MonoBehaviour {
         foreach ( GameObject t in TestPictureObjects)
             t.GetComponent<Image>().color  = new Color32(255,255,225,255);
         
-
         mixTest();
-        
         noAudioPlaying = true;
     }
     
@@ -290,13 +275,11 @@ public class ColorsScript : MonoBehaviour {
     
     public void PlayCongrats(int i)
     {
-        if (noAudioPlaying)
-        {
-            if(isMixTestActive)
-                StartCoroutine(CongratsSoundMixTest(i));
-            else
-                StartCoroutine(CongratsSound(i)); 
-        }     
+        if (!noAudioPlaying || AudioSource.isPlaying) return;
+        if(isMixTestActive)
+            StartCoroutine(CongratsSoundMixTest(i));
+        else
+            StartCoroutine(CongratsSound(i));
     }
 
     public void ReShowImages()
@@ -311,6 +294,7 @@ public class ColorsScript : MonoBehaviour {
         Racoon.SetActive(true);
         showAnimalImage();
     }
+    
     private void showAnimalImage()
     {
         ColorsMenuObjects.SetActive(false);

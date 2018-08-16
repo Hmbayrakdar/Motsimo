@@ -61,11 +61,9 @@ public class AnimalsSceneScript : MonoBehaviour {
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            StarAnimationScript.counp = 0;
-            SceneManager.LoadScene("MainScene");
-        }
+        if (!Input.GetKeyDown(KeyCode.Escape)) return;
+        StarAnimationScript.counp = 0;
+        SceneManager.LoadScene("MainScene");
     }
 
     IEnumerator StartRacoonHelpCounter(int i)
@@ -97,9 +95,6 @@ public class AnimalsSceneScript : MonoBehaviour {
     
     IEnumerator CongratsSound(int i)
     {
-        if (AudioSource.isPlaying)
-            yield break;
-        
         if (!TestPictureObjects[i].CompareTag("trueAnswer")) {
             FailCounter[PictureCounter-1]++;
             TestPictureObjects[i].GetComponent<Image>().color  = new Color32(255,255,225,100);
@@ -123,9 +118,7 @@ public class AnimalsSceneScript : MonoBehaviour {
         noAudioPlaying = false;
         
         if (PictureCounter < AnimalSprites.Length)
-        {
             gameObject.GetComponent<StarAnimationScript>().StarFunction();
-        }
         
         yield return new WaitUntil(() => gameObject.GetComponent<StarAnimationScript>().getAPanelFinished() == true);
 
@@ -179,7 +172,7 @@ public class AnimalsSceneScript : MonoBehaviour {
     
     public void PlayCongrats(int i)
     {
-        if(noAudioPlaying)
+        if(noAudioPlaying && !AudioSource.isPlaying)
             StartCoroutine(CongratsSound(i));
     }
 	
