@@ -203,6 +203,11 @@ public class NumbersSceneScript : MonoBehaviour {
 		}
 	}
 
+	public void goToMainMenu()
+	{
+		SceneManager.LoadScene("MainScene");
+	}
+
 	public void startTest()
 	{
 		

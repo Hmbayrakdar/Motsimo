@@ -229,10 +229,10 @@ public class ColorsScript : MonoBehaviour {
             TestPictureObjects[1].SetActive(false);
             questionTextObject.SetActive(false);
 
-            for (int j = 0; j < 3; j++)
+            /*for (int j = 0; j < 3; j++)
             {
                 SendDataToDBforMixTest(mixTestFailCounter[i], mixTestAnswerTimes[i],i);
-            }
+            }*/
 
             ColorsMenuObjects.SetActive(true);
             noAudioPlaying = true;
@@ -276,10 +276,7 @@ public class ColorsScript : MonoBehaviour {
     public void PlayCongrats(int i)
     {
         if (!noAudioPlaying || AudioSource.isPlaying) return;
-        if(isMixTestActive)
-            StartCoroutine(CongratsSoundMixTest(i));
-        else
-            StartCoroutine(CongratsSound(i));
+        StartCoroutine(isMixTestActive ? CongratsSoundMixTest(i) : CongratsSound(i));
     }
 
     public void ReShowImages()
